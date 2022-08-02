@@ -101,7 +101,8 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 		try {
 			final Map<String, String> items = configClient.getConfigurationItems().get(0).getItems();
 			output.put(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, Integer.parseInt(items.get(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS)));
-			output.put(Constants.ConfigItems.ERROR_TRANSACTION_RETENTION_HOURS, Integer.parseInt(items.get(Constants.ConfigItems.ERROR_TRANSACTION_RETENTION_HOURS)));
+			output.put(Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, Integer.parseInt(items.get(Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS)));
+			output.put(Constants.ConfigItems.NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, Integer.parseInt(items.get(Constants.ConfigItems.NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS)));
 		} catch (Exception e) {
 			log.error("Errore durante la lettura delle configurazioni necessarie per la Data Retention. " , e);
 			throw new BusinessException("Errore durante la lettura delle configurazioni necessarie per la Data Retention. " , e);

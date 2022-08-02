@@ -116,7 +116,8 @@ class DataRetentionSchedulerUnitTest {
 		List<ConfigItemETY> items = new ArrayList<>();
 		Map<String, String> configItems = new HashMap<>();
 		configItems.put(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
-		configItems.put(Constants.ConfigItems.ERROR_TRANSACTION_RETENTION_HOURS, String.valueOf(error));
+		configItems.put(Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, String.valueOf(error));
+		configItems.put(Constants.ConfigItems.NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, String.valueOf(error));
 
 		items.add(new ConfigItemETY("GARBAGE", configItems));
 		given(configClient.getConfigurationItems()).willReturn(items);
@@ -208,7 +209,7 @@ class DataRetentionSchedulerUnitTest {
 		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assertEquals(size, transactions.size(), "Only items in SUCCESS state should have been deleted");
 
-		transactions.forEach(transaction -> assertEquals(Constants.ConfigItems.ERROR_TRANSACTION_RETENTION_HOURS, transaction.getEventStatus(), "All remaining items should have be in error"));
+		transactions.forEach(transaction -> assertEquals(Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, transaction.getEventStatus(), "All remaining items should have be in error"));
 
 		data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
 		assertEquals(size, data.size(), "Only half of data should have been deleted");
@@ -226,7 +227,7 @@ class DataRetentionSchedulerUnitTest {
 			data.add(new Document().append("workflow_instance_id", id));
 			transaction.setWorkflowInstanceId(id);
 			transaction.setEventDate(oldDate);
-			transaction.setEventStatus(isSuccessful ? Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS : Constants.ConfigItems.ERROR_TRANSACTION_RETENTION_HOURS);
+			transaction.setEventStatus(isSuccessful ? Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS : Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS);
 			dataList.add(transaction);
 		}
 

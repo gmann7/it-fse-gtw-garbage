@@ -63,9 +63,11 @@ public final class Constants {
 
 	public static final class ConfigItems {
 
-		public static final String SUCCESS_TRANSACTION_RETENTION_HOURS = "SUCCESS_TRANSACTION_RETENTION_HOURS";
+		public static final String SUCCESS_TRANSACTION_RETENTION_HOURS = "SUCCESS";
 
-		public static final String ERROR_TRANSACTION_RETENTION_HOURS = "ERROR_TRANSACTION_RETENTION_HOURS";
+		public static final String BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "BLOCKING_ERROR";
+		
+		public static final String NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "NON_BLOCKING_ERROR";
 
 		private ConfigItems() {}
 	}

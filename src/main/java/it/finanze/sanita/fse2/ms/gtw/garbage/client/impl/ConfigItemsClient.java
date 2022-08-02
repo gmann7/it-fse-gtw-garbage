@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,7 +15,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.MicroservicesURLCFG;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import lombok.AllArgsConstructor;
@@ -32,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-@Profile("!" + Constants.Profile.DEV)
 public class ConfigItemsClient implements IConfigItemsClient {
     
     @Autowired

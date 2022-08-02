@@ -1,13 +1,12 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.repository;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Slf4j
+import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
+
 @Configuration
 public class CollectionNaming {
 
