@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.controller.ITestCTL;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
-import lombok.extern.slf4j.Slf4j;
 
 
 @RestController
