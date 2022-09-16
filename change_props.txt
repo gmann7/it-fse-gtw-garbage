@@ -1,0 +1,9 @@
+16/09/2022
+
+Legend : 
+INFO   - 
+ADD    -
+REMOVE -  
+
+INFO:
+transactions.mongodb.uri=Url del database che gestisce i record relativi alle transazioni in fase di creazione, aggiornamento o cancellazione di un CDA
