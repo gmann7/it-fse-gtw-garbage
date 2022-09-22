@@ -47,13 +47,13 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 		boolean output = false;
 		
 		try {
-			log.info("DELETE DATA ON DATA-DB - starting...");
+			log.debug("DELETE DATA ON DATA-DB - starting...");
 			
 			int recordDeleted = dataRepo.deleteIds(idsToDelete);
 			output = true;
 			
-			log.info("DELETE DATA ON DATA-DB - Records deleted {}.", recordDeleted);
-			log.info("DELETE DATA ON DATA-DB - finished.");
+			log.debug("DELETE DATA ON DATA-DB - Records deleted {}.", recordDeleted);
+			log.debug("DELETE DATA ON DATA-DB - finished.");
 		} catch (Exception e) {
 			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'ini_eds_invocation': " , e);
 			throw new BusinessException("Errore durante esecuzione Engine Data Retention per il contenuto di 'ini_eds_invocation': " , e);
@@ -67,10 +67,10 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 		List<String> output = new ArrayList<>();
 		
 		try {
-			log.info("DELETE DATA ON TRANSACTIONS-DB - starting...");
+			log.debug("DELETE DATA ON TRANSACTIONS-DB - starting...");
 			
 			// Find.
-			log.info("DELETE DATA ON TRANSACTIONS-DB - find records to delete...");
+			log.debug("DELETE DATA ON TRANSACTIONS-DB - find records to delete...");
 			Date dateToRemove = DateUtility.getDateCondition(hoursTransactionsDB);
 			List<TransactionEventsETY> entities = transactionsRepo.findOldTransactions(state, dateToRemove);
 			
@@ -81,11 +81,11 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 			}
 
 			// Delete.
-			log.info("DELETE DATA ON TRANSACTIONS-DB - delete record with state {}...", state);
+			log.debug("DELETE DATA ON TRANSACTIONS-DB - delete record with state {}...", state);
 			int recordDeleted = transactionsRepo.deleteOldTransactions(ids);
 
-			log.info("DELETE DATA ON TRANSACTIONS-DB- Records deleted {} with STATE {}.", recordDeleted, state);
-			log.info("DELETE DATA ON TRANSACTIONS-DB - finished.");
+			log.debug("DELETE DATA ON TRANSACTIONS-DB- Records deleted {} with STATE {}.", recordDeleted, state);
+			log.debug("DELETE DATA ON TRANSACTIONS-DB - finished.");
 		} catch (Exception e) {
 			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': " , e);
 			throw new BusinessException("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': " , e);

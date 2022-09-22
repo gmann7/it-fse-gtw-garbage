@@ -40,7 +40,7 @@ public class ConfigItemsClient implements IConfigItemsClient {
 
 	@Override
 	public List<ConfigItemETY> getConfigurationItems() {
-		log.info("Calling gtw-config");
+		log.debug("Config Client - Retrieving configuration items");
 
         List<ConfigItemETY> configurationItems = new ArrayList<>();
 
@@ -57,7 +57,7 @@ public class ConfigItemsClient implements IConfigItemsClient {
 			final ConfigItemDTO body = response.getBody();
 			if (body != null) {
 				configurationItems = body.getConfigurationItems();
-				log.info("gtw-config returned status {} and {} configuration items", response.getStatusCode(), body.getSize());
+				log.debug("gtw-config returned status {} and {} configuration items", response.getStatusCode(), body.getSize());
 			} else {
 				log.warn("gtw-config returned status {} and null body", response.getStatusCode());
 			}

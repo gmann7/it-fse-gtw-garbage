@@ -40,7 +40,7 @@ public class DataRetentionScheduler implements Serializable {
 
     public void run() {
     	
-        log.info("DATA RETENTION SCHEDULER - Retention Scheduler starting...");
+        log.debug("Data Retention Scheduler - Retention Scheduler starting");
         try {
         	
         	// Lettura Config remote.
@@ -54,10 +54,9 @@ public class DataRetentionScheduler implements Serializable {
 			}
         	
         } catch (Exception e) {
-            log.error("DATA RETENTION SCHEDULER - Error executing InvokeEDSClientScheduler", e);
+            log.warn("Data Retention Scheduler - Error while executing data retention", e);
         }
         
-        log.info("DATA RETENTION SCHEDULER - Retention Scheduler finished");
-        
+        log.debug("Data Retention Scheduler - Retention Scheduler finished");
     }
 }
