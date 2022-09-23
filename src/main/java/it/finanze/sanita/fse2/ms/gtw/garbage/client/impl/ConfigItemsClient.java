@@ -75,7 +75,7 @@ public class ConfigItemsClient implements IConfigItemsClient {
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    private static class ConfigItemDTO {
+    public static class ConfigItemDTO {
 
         private List<ConfigItemETY> configurationItems;
 
