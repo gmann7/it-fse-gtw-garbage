@@ -7,3 +7,12 @@ REMOVE -
 
 INFO:
 transactions.mongodb.uri=Url del database che gestisce i record relativi alle transazioni in fase di creazione, aggiornamento o cancellazione di un CDA
+
+28/09/2022
+Added:
+log.output.format=console
+log.level=trace
+log.kafka-log.enable=true
+kafka.log.base-topic=MDS-SA-0004_FU_001_LOG
+kafka.producer.client-id=springboot-gtw-dispatcher
+kafka.bootstrap-servers=kafka.bootstrap-servers=${KAFKA_HOST}:${KAFKA_PORT1},${KAFKA_HOST}:${KAFKA_PORT2},${KAFKA_HOST}:${KAFKA_PORT3}
