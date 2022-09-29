@@ -30,7 +30,6 @@
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
 		<sonar.exclusions>
 			src/main/java/it/finanze/sanita/fse2/ms/gtw/**/config/OpenApiCFG.java
-			src/main/java/it/finanze/sanita/fse2/ms/gtw/garbage/logging/**/*.*
 		</sonar.exclusions>
 	</properties>
 
@@ -143,18 +142,7 @@
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-sleuth</artifactId>
 		</dependency>
-
-		<!-- KAFKA -->
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.kafka</groupId>
-			<artifactId>spring-kafka-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-
+ 
 	</dependencies>
 
 	<dependencyManagement>
