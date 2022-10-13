@@ -36,6 +36,9 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 		try {
 			log.debug("DELETE DATA ON TRANSACTIONS-DB - starting...");
 
+			//TODO - Delete
+			
+			
 			// Find
 			log.debug("DELETE DATA ON TRANSACTIONS-DB - find records to delete...");
 			Date dateToRemove = DateUtility.getDateCondition(day);
@@ -65,7 +68,7 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 	@Override
 	public Map<String, Integer> readConfigurations() {
 		Map<String, Integer> output = new HashMap<>();
-
+		//TODO - Il numero di giorni della cancellazione
 		try {
 			final Map<String, String> items = configClient.getConfigurationItems().get(0).getItems();
 			output.put(Constants.ConfigItems.SUCCESS_FSE_RETENTION_HOURS,

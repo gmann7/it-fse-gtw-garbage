@@ -9,37 +9,31 @@ import java.util.List;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.mongodb.assertions.Assertions;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.ValidatedDocumentEventsETY;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl.ValidatedDocumentRepo;
 
-@Configuration
-@SpringBootTest(classes = ValidatedDocumentRepo.class)
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ExtendWith(SpringExtension.class)
-@ComponentScan(basePackages = { "it.sanita.garbage" })
-@ActiveProfiles("test")
-public class ValidatedDocumentRepoTest {
+@ActiveProfiles(Constants.Profile.TEST)
+@DisplayName("Data Retention Scheduler Unit Test")
+@ComponentScan(basePackages = {Constants.ComponentScan.BASE})
+class ValidatedDocumentRepoTest {
 
 	@Autowired
 	@Qualifier("mongo-template-valdoc")
