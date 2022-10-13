@@ -38,49 +38,72 @@ public class MongoDatabaseCFG {
 	@Autowired
 	private MongoPropertiesTransactionsCFG mongoTransactions;
 
-    @Autowired
-    private ApplicationContext appContext;
- 
-    final List<Converter<?, ?>> conversions = new ArrayList<>();
+	@Autowired
+	private MongoPropertiesFseCFG mongoFse;
 
-    @Bean
-    @Primary
-    @Qualifier("mongo-factory-data")
-    public MongoDatabaseFactory mongoDatabaseFactoryData(){
-        return new SimpleMongoClientDatabaseFactory(mongoData.getUri());
-    }
-    
-    @Bean
-    @Qualifier("mongo-factory-data")
-    public MongoDatabaseFactory mongoDatabaseFactoryTransactions(){
-    	return new SimpleMongoClientDatabaseFactory(mongoTransactions.getUri());
-    }
+	@Autowired
+	private ApplicationContext appContext;
 
-    @Bean
-    @Primary
-    @Qualifier("mongo-template-data")
-    public MongoTemplate mongoTemplateData() {
-        final MongoDatabaseFactory factory = mongoDatabaseFactoryData();
-        final MongoMappingContext mongoMappingContext = new MongoMappingContext();
-        mongoMappingContext.setApplicationContext(appContext);
+	final List<Converter<?, ?>> conversions = new ArrayList<>();
 
-        MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory), mongoMappingContext);
-        converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-        return new MongoTemplate(factory, converter);
-    }
+	@Bean
+	@Primary
+	@Qualifier("mongo-factory-data")
+	public MongoDatabaseFactory mongoDatabaseFactoryData() {
+		return new SimpleMongoClientDatabaseFactory(mongoData.getUri());
+	}
 
-    @Bean
+	@Bean
+	@Qualifier("mongo-factory-transaction")
+	public MongoDatabaseFactory mongoDatabaseFactoryTransactions() {
+		return new SimpleMongoClientDatabaseFactory(mongoTransactions.getUri());
+	}
+
+	@Bean
+	@Qualifier("mongo-factory-valdoc")
+	public MongoDatabaseFactory mongoDatabaseFactoryFse() {
+		return new SimpleMongoClientDatabaseFactory(mongoFse.getUri());
+	}
+
+	@Bean
+	@Primary
+	@Qualifier("mongo-template-data")
+	public MongoTemplate mongoTemplateData() {
+		final MongoDatabaseFactory factory = mongoDatabaseFactoryData();
+		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
+		mongoMappingContext.setApplicationContext(appContext);
+
+		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
+				mongoMappingContext);
+		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
+		return new MongoTemplate(factory, converter);
+	}
+
+	@Bean
 //    @Primary
-    @Qualifier("mongo-template-transaction")
-    public MongoTemplate mongoTemplateTransactions() {
-    	final MongoDatabaseFactory factory = mongoDatabaseFactoryTransactions();
-        final MongoMappingContext mongoMappingContext = new MongoMappingContext();
-        mongoMappingContext.setApplicationContext(appContext);
+	@Qualifier("mongo-template-transaction")
+	public MongoTemplate mongoTemplateTransactions() {
+		final MongoDatabaseFactory factory = mongoDatabaseFactoryTransactions();
+		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
+		mongoMappingContext.setApplicationContext(appContext);
 
-        MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory), mongoMappingContext);
-        converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-    	return new MongoTemplate(factory, converter);
-    }
-  
- 
+		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
+				mongoMappingContext);
+		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
+		return new MongoTemplate(factory, converter);
+	}
+
+	@Bean
+	@Qualifier("mongo-template-valdoc")
+	public MongoTemplate mongoTemplateFse() {
+		final MongoDatabaseFactory factory = mongoDatabaseFactoryFse();
+		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
+		mongoMappingContext.setApplicationContext(appContext);
+
+		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
+				mongoMappingContext);
+		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
+		return new MongoTemplate(factory, converter);
+	}
+
 }

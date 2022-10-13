@@ -10,7 +10,7 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.config;
 public final class Constants {
 
 	/**
-	 *	Path scan.
+	 * Path scan.
 	 */
 	public static final class ComponentScan {
 
@@ -33,12 +33,12 @@ public final class Constants {
 		 * Configuration path.
 		 */
 		public static final String CONFIG = "it.sanita.fse2.ms.gtw.garbage.config";
-		
+
 		/**
 		 * Configuration mongo path.
 		 */
 		public static final String CONFIG_MONGO = "it.sanita.fse2.ms.gtw.garbage.config.mongo";
-		
+
 		/**
 		 * Configuration mongo repository path.
 		 */
@@ -50,13 +50,15 @@ public final class Constants {
 
 			public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
 
+			public static final String VALIDATED_DOCUMENTS = "validated_documents";
+
 			private Collections() {
 
 			}
 		}
-		
+
 		private ComponentScan() {
-			//This method is intentionally left blank.
+			// This method is intentionally left blank.
 		}
 
 	}
@@ -66,12 +68,19 @@ public final class Constants {
 		public static final String SUCCESS_TRANSACTION_RETENTION_HOURS = "SUCCESS";
 
 		public static final String BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "BLOCKING_ERROR";
-		
+
 		public static final String NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "NON_BLOCKING_ERROR";
 
-		private ConfigItems() {}
+		public static final String SUCCESS_FSE_RETENTION_HOURS = "SUCCESS";
+
+		public static final String BLOCKING_ERROR_FSE_RETENTION_HOURS = "BLOCKING_ERROR";
+
+		public static final String NON_BLOCKING_ERROR_FSE_RETENTION_HOURS = "NON_BLOCKING_ERROR";
+
+		private ConfigItems() {
+		}
 	}
- 
+
 	public static final class Profile {
 
 		public static final String TEST = "test";
@@ -80,17 +89,17 @@ public final class Constants {
 
 		public static final String DEV = "dev";
 
-		/** 
+		/**
 		 * Constructor.
 		 */
 		private Profile() {
-			//This method is intentionally left blank.
+			// This method is intentionally left blank.
 		}
 
 	}
-  
+
 	/**
-	 *	Constants.
+	 * Constants.
 	 */
 	private Constants() {
 

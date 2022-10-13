@@ -12,19 +12,21 @@ import java.util.Map;
  *
  */
 public interface IDataRetentionSRV extends Serializable {
-	
+
 	/**
-	 * Metodo che determina le regole di retention e le applica eliminando dati sul gtw-data-db.
+	 * Metodo che determina le regole di retention e le applica eliminando dati sul
+	 * gtw-data-db.
 	 * 
 	 * @return true in caso di riuscita.
 	 */
 	Boolean deleteOnDataDB(final List<String> idsToDelete);
-	
+
 	/**
-	 * Metodo che determina le regole di retention e le applica eliminando dati sul gtw-transactions-db.
+	 * Metodo che determina le regole di retention e le applica eliminando dati sul
+	 * gtw-transactions-db.
 	 * 
 	 * @return Lista di Ids da eliminare.
-	 */	
+	 */
 	List<String> deleteOnTransactionDB(final String state, final int hoursTransactionsDB);
 
 	/**
