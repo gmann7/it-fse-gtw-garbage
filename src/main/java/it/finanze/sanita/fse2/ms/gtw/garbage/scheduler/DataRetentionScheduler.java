@@ -4,6 +4,7 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.scheduler;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -34,12 +35,12 @@ public class DataRetentionScheduler implements Serializable {
     
     @Scheduled(cron = "${scheduler.data-retention}")
 	@SchedulerLock(name = "invokeDataRetentionScheduler" , lockAtMostFor = "60m")
-	public void action() {
-		run(); 
+	public Map<String,Integer> action() {
+		return run(); 
 	}
 
-    public void run() {
-    	
+    public Map<String,Integer> run() {
+    	Map<String,Integer> output = new HashMap<>();
         log.debug("Data Retention Scheduler - Retention Scheduler starting");
         try {
         	
@@ -47,16 +48,22 @@ public class DataRetentionScheduler implements Serializable {
         	Map<String, Integer> configs = retentionSRV.readConfigurations();
 
         	// Eliminazione Transactions in base alle configurazioni recuperate.
+        	Integer transactionDeleted = 0;
+        	Integer iniEdsDeleted = 0;
         	for (Entry<String, Integer> config : configs.entrySet()) {
         		List<String> wfii = retentionSRV.deleteOnTransactionDB(config.getKey(), config.getValue());
+        		transactionDeleted+=wfii.size();
             	// Eliminazione Data&Metadata relazionate con le Transactions.
-        		retentionSRV.deleteOnDataDB(wfii);
+        		iniEdsDeleted+= retentionSRV.deleteOnDataDB(wfii);
 			}
+        	output.put("transaction_deleted", transactionDeleted);
+        	output.put("ini_eds_deleted", iniEdsDeleted);
         	
         } catch (Exception e) {
             log.warn("Data Retention Scheduler - Error while executing data retention", e);
         }
         
         log.debug("Data Retention Scheduler - Retention Scheduler finished");
+        return output;
     }
 }

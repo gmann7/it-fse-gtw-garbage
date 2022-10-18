@@ -20,4 +20,12 @@ public class CollectionNaming {
         }
         return Constants.ComponentScan.Collections.TRANSACTION_DATA;
     }
+    
+    @Bean("iniEdsInvocationBean")
+    public String getIniEdsCollection() {
+        if (profileUtility.isTestProfile()) {
+            return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
+        }
+        return Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
+    }
 }

@@ -7,8 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +42,8 @@ public class TransactionsRepo implements ITransactionsRepo {
     @Autowired
 	private transient RetentionCFG retentionCfg;
 
-	@Autowired
-	private transient ProfileUtility profileUtility;
+//	@Autowired
+//	private transient ProfileUtility profileUtility;
     
 	@Override
 	public int deleteOldTransactions(final List<ObjectId> idsToRemove) {
@@ -55,11 +53,11 @@ public class TransactionsRepo implements ITransactionsRepo {
 			Document query = new Document();
 			 
 			query.append("_id", new Document("$in", idsToRemove));
-			String targetCollection = Constants.ComponentScan.Collections.TRANSACTION_DATA;
-			if (profileUtility.isTestProfile()) {
-				targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
-			}
-			output = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
+//			String targetCollection = Constants.ComponentScan.Collections.TRANSACTION_DATA;
+//			if (profileUtility.isTestProfile()) {
+//				targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
+//			}
+			output = mongoTemplate.getCollection(mongoTemplate.getCollectionName(TransactionEventsETY.class)).deleteMany(query).getDeletedCount();
 			
 		} catch (Exception e) {
 			log.error("Errore nel tentativo di eliminare la lista di ids nella collection 'transaction_data': " , e);

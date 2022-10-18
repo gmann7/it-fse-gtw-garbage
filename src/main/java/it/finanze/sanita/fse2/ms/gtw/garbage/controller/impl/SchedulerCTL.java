@@ -1,16 +1,19 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.controller.impl;
 
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.controller.ITestCTL;
+import it.finanze.sanita.fse2.ms.gtw.garbage.controller.ISchedulerCTL;
+import it.finanze.sanita.fse2.ms.gtw.garbage.dto.DeletedSchedulerResDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
 
 
 @RestController
-public class TestCTL implements ITestCTL {
+public class SchedulerCTL extends AbstractCTL implements ISchedulerCTL {
 
 	/**
 	 * Serial version uid.
@@ -21,8 +24,9 @@ public class TestCTL implements ITestCTL {
 	private DataRetentionScheduler dataRetentionScheduler;
 	
 	@Override
-	public void runScheduler(HttpServletRequest request) {
-		dataRetentionScheduler.action();
+	public DeletedSchedulerResDTO runScheduler(HttpServletRequest request) {
+		Map<String,Integer> out = dataRetentionScheduler.action();
+		return new DeletedSchedulerResDTO(getLogTraceInfo(), out);
 	}
 
 	 

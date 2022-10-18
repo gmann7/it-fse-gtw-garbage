@@ -16,9 +16,9 @@ public interface IDataRetentionSRV extends Serializable {
 	/**
 	 * Metodo che determina le regole di retention e le applica eliminando dati sul gtw-data-db.
 	 * 
-	 * @return true in caso di riuscita.
+	 * @return Integer numero di record eliminati.
 	 */
-	Boolean deleteOnDataDB(final List<String> idsToDelete);
+	Integer deleteOnDataDB(final List<String> idsToDelete);
 	
 	/**
 	 * Metodo che determina le regole di retention e le applica eliminando dati sul gtw-transactions-db.

@@ -5,8 +5,6 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 
 import java.util.List;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IDataRepo;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.IniEdsInvocationETY;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -34,8 +33,8 @@ public class DataRepo implements IDataRepo {
 	@Qualifier("mongo-template-data")
 	private transient MongoTemplate mongoTemplate;
 
-	@Autowired
-	private transient ProfileUtility profileUtility;
+//	@Autowired
+//	private transient ProfileUtility profileUtility;
 
 	@Override
 	public int deleteIds(final List<String> ids) {
@@ -45,12 +44,12 @@ public class DataRepo implements IDataRepo {
 			Document query = new Document();
 		  
 			query.append("workflow_instance_id", new Document("$in", ids));
-			String targetCollection = Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
-			if (profileUtility.isTestProfile()) {
-				targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
-			}
+//			String targetCollection = Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
+//			if (profileUtility.isTestProfile()) {
+//				targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
+//			}
 
-			output = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
+			output = mongoTemplate.getCollection(mongoTemplate.getCollectionName(IniEdsInvocationETY.class)).deleteMany(query).getDeletedCount();
 			
 		} catch (Exception e) {
 			log.error("Errore nel tentativo di eliminare la lista di ids nella collection 'ini_eds_invocation': " , e);

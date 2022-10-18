@@ -43,23 +43,21 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 	private IConfigItemsClient configClient;
     
 	@Override
-	public Boolean deleteOnDataDB(final List<String> idsToDelete) {
-		boolean output = false;
-		
+	public Integer deleteOnDataDB(final List<String> idsToDelete) {
+		Integer output = 0;
 		try {
 			log.debug("DELETE DATA ON DATA-DB - starting...");
 			
-			int recordDeleted = dataRepo.deleteIds(idsToDelete);
-			output = true;
+			output = dataRepo.deleteIds(idsToDelete);
 			
-			log.debug("DELETE DATA ON DATA-DB - Records deleted {}.", recordDeleted);
+			log.debug("DELETE DATA ON DATA-DB - Records deleted {}.", output);
 			log.debug("DELETE DATA ON DATA-DB - finished.");
 		} catch (Exception e) {
 			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'ini_eds_invocation': " , e);
 			throw new BusinessException("Errore durante esecuzione Engine Data Retention per il contenuto di 'ini_eds_invocation': " , e);
 		}
-		
 		return output;
+		
 	}
 
 	@Override
