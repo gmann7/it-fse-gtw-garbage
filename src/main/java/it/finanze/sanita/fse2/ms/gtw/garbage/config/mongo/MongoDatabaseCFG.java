@@ -39,7 +39,7 @@ public class MongoDatabaseCFG {
 	private MongoPropertiesTransactionsCFG mongoTransactions;
 
 	@Autowired
-	private MongoPropertiesFseCFG mongoFse;
+	private MongoPropertiesValidatedDocumentCFG mongoFse;
 
 	@Autowired
 	private ApplicationContext appContext;

@@ -45,12 +45,12 @@ public class DateUtility implements Serializable {
 		try {
 			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			LocalDate dateParser = LocalDate.parse(dateToCompare, df);
-			int docDay = dateParser.getDayOfMonth();
+			int dayOfDocument = dateParser.getDayOfMonth();
 
 			LocalDate todayDate = LocalDate.now();
 			int todayDay = todayDate.getDayOfMonth();
 
-			int daysAway = todayDay - docDay;
+			int daysAway = todayDay - dayOfDocument;
 
 			if (daysAway > maxDaysToValidation) {
 				return true;

@@ -71,11 +71,9 @@ public final class Constants {
 
 		public static final String NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "NON_BLOCKING_ERROR";
 
-		public static final String SUCCESS_FSE_RETENTION_HOURS = "SUCCESS";
+		public static final String SUCCESS_VALDOC_RETENTION_DAY = "SUCCESS";
 
-		public static final String BLOCKING_ERROR_FSE_RETENTION_HOURS = "BLOCKING_ERROR";
-
-		public static final String NON_BLOCKING_ERROR_FSE_RETENTION_HOURS = "NON_BLOCKING_ERROR";
+		public static final String VALIDATED_DOCUMENT_DAYS = "5";
 
 		private ConfigItems() {
 		}

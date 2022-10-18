@@ -32,21 +32,21 @@ public class ValidatedDocumentRetentionScheduler implements Serializable {
 
 	public void run() {
 
-		log.debug("Fse Retention Scheduler - Retention Scheduler starting");
+		log.debug("ValidatedDocument Retention Scheduler - Retention Scheduler starting");
 		try {
 			// Lettura Config remote.
 			Map<String, Integer> configs = retentionSRV.readConfigurations();
 
-			// Eliminazione Fse in base alle configurazioni recuperate.
+			// Eliminazione Validated Document in base alle configurazioni recuperate.
 			for (Entry<String, Integer> config : configs.entrySet()) {
 				retentionSRV.deleteOnValDocDB(config.getValue());
 			}
 
 		} catch (Exception e) {
-			log.warn("Fse Retention Scheduler - Error while executing data retention", e);
+			log.warn("ValidatedDocument Retention Scheduler - Error while executing data retention", e);
 		}
 
-		log.debug("Fse Retention Scheduler - Retention Scheduler finished");
+		log.debug("ValidatedDocument Retention Scheduler - Retention Scheduler finished");
 	}
 
 }

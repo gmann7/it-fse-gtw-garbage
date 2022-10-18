@@ -6,15 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.types.ObjectId;
+import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.ValidatedDocumentEventsETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IValidatedDocumentRetentionSRV;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +25,8 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 
 	@Autowired
 	private IValidatedDocumentRepo valDocRepo;
+	@Autowired
+	MongoTemplate mongoTemplate;
 
 	@Autowired
 	private IConfigItemsClient configClient;
@@ -34,28 +36,12 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 		List<String> output = new ArrayList<>();
 
 		try {
-			log.debug("DELETE DATA ON TRANSACTIONS-DB - starting...");
+			log.debug("DELETE DATA ON VALIDATED-DOCUMENT-DB - starting...");
 
-			//TODO - Delete
-			
-			
-			// Find
-			log.debug("DELETE DATA ON TRANSACTIONS-DB - find records to delete...");
 			Date dateToRemove = DateUtility.getDateCondition(day);
-			List<ValidatedDocumentEventsETY> entities = valDocRepo.findOldValidatedDocument(dateToRemove);
+			valDocRepo.findOldValidatedDocument(dateToRemove);
 
-			List<ObjectId> ids = new ArrayList<>();
-			for (ValidatedDocumentEventsETY e : entities) {
-				output.add(e.getWorkflowInstanceId());
-				ids.add(new ObjectId(e.getId()));
-			}
-
-			// Delete
-			log.debug("DELETE DATA ON FSE-DB - delete record...");
-			int recordDeleted = valDocRepo.deleteOldValidatedDocument(ids);
-
-			log.debug("DELETE DATA ON FSE-DB- Records deleted {}.", recordDeleted);
-			log.debug("DELETE DATA ON FSES-DB - finished.");
+			log.debug("DELETE DATA ON VALIDATED-DOCUMENT-DB - finished.");
 		} catch (Exception e) {
 			log.error("Errore durante esecuzione Engine Fse Retention per il contenuto di 'validated_documents': ", e);
 			throw new BusinessException(
@@ -68,19 +54,15 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 	@Override
 	public Map<String, Integer> readConfigurations() {
 		Map<String, Integer> output = new HashMap<>();
-		//TODO - Il numero di giorni della cancellazione
+
 		try {
 			final Map<String, String> items = configClient.getConfigurationItems().get(0).getItems();
-			output.put(Constants.ConfigItems.SUCCESS_FSE_RETENTION_HOURS,
-					Integer.parseInt(items.get(Constants.ConfigItems.SUCCESS_FSE_RETENTION_HOURS)));
-			output.put(Constants.ConfigItems.BLOCKING_ERROR_FSE_RETENTION_HOURS,
-					Integer.parseInt(items.get(Constants.ConfigItems.BLOCKING_ERROR_FSE_RETENTION_HOURS)));
-			output.put(Constants.ConfigItems.NON_BLOCKING_ERROR_FSE_RETENTION_HOURS,
-					Integer.parseInt(items.get(Constants.ConfigItems.NON_BLOCKING_ERROR_FSE_RETENTION_HOURS)));
+			output.put(Constants.ConfigItems.SUCCESS_VALDOC_RETENTION_DAY,
+					Integer.parseInt(items.get(Constants.ConfigItems.VALIDATED_DOCUMENT_DAYS)));
 		} catch (Exception e) {
-			log.error("Errore durante la lettura delle configurazioni necessarie per la Fse Retention.", e);
+			log.error("Errore durante la lettura delle configurazioni necessarie per la validazione del documento.", e);
 			throw new BusinessException(
-					"Errore durante la lettura delle configurazioni necessarie per la Fse Retention. ", e);
+					"Errore durante la lettura delle configurazioni necessarie per la validazione del documento. ", e);
 		}
 
 		return output;

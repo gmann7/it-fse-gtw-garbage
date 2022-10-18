@@ -44,10 +44,10 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 			Document query = new Document();
 
 			query.append("_id", new Document("$in", idsToRemove));
-			
+
 			String targetCollection = Constants.ComponentScan.Collections.VALIDATED_DOCUMENTS;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
-			
+
 			output = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
 
 		} catch (Exception e) {
@@ -66,8 +66,8 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 		try {
 
 			Query query = new Query();
-			query.fields().include("_id", "w_id");
-			query.addCriteria(Criteria.where("insertion_date").lte(oldToRemove));
+			query.fields().include("insertion_date");
+			query.addCriteria(Criteria.where("insertion_date").lt(oldToRemove));
 			query.limit(retentionCfg.getQueryLimit());
 
 			output = mongoTemplate.find(query, ValidatedDocumentEventsETY.class);

@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @Component
 @EqualsAndHashCode(callSuper = false)
-public class MongoPropertiesFseCFG implements Serializable {
+public class MongoPropertiesValidatedDocumentCFG implements Serializable {
 
 	/**
 	 * 
