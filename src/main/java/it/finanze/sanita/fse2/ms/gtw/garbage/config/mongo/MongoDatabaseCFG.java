@@ -106,4 +106,23 @@ public class MongoDatabaseCFG {
 		return new MongoTemplate(factory, converter);
 	}
 
+	@Bean
+	@Qualifier("mongo-factory-rules")
+	public MongoDatabaseFactory mongoDatabaseFactoryRules() {
+		return new SimpleMongoClientDatabaseFactory(mongoFse.getUri());
+	}
+
+	@Bean
+	@Qualifier("mongo-template-rules")
+	public MongoTemplate mongoTemplateRules() {
+		final MongoDatabaseFactory factory = mongoDatabaseFactoryFse();
+		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
+		mongoMappingContext.setApplicationContext(appContext);
+
+		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
+				mongoMappingContext);
+		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
+		return new MongoTemplate(factory, converter);
+	}
+
 }

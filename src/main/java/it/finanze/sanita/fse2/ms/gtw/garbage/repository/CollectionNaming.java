@@ -37,4 +37,18 @@ public class CollectionNaming {
 		return Constants.ComponentScan.Collections.VALIDATED_DOCUMENTS;
 	}
 
+	@Bean("schemaBean")
+	public String getSchema() {
+		return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.SCHEMA;
+	}
+
+	@Bean("schematronBean")
+	public String getSchematron() {
+		return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.SCHEMATRON;
+	}
+
+	@Bean("structuresBean")
+    public String getStructuresCollection() {
+        return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.FHIR_TRANSFORM;
+    }
 }

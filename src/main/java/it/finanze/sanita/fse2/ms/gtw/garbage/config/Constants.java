@@ -52,6 +52,12 @@ public final class Constants {
 
 			public static final String VALIDATED_DOCUMENTS = "validated_documents";
 
+			public static final String SCHEMA = "schema";
+
+			public static final String SCHEMATRON = "schematron";
+			
+			public static final String FHIR_TRANSFORM = "transform";
+
 			private Collections() {
 
 			}
