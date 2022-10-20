@@ -3,6 +3,8 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.management.Query;
+
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -34,9 +36,8 @@ public class RulesRepo implements IRulesRepo {
 			c.add(Calendar.DATE, -5);
 			date = c.getTime();
 
-			query.append("deleted", new Document("$eq", false));
-			query.append("last_update_date", new Document("$lt", date));
-			
+			query.append("deleted", new Document("$eq", false)).append("last_update_date", new Document("$lt", date));
+
 			String targetCollection = Constants.ComponentScan.Collections.SCHEMATRON;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
@@ -63,8 +64,7 @@ public class RulesRepo implements IRulesRepo {
 			c.add(Calendar.DATE, -5);
 			date = c.getTime();
 
-			query.append("deleted", new Document("$eq", false));
-			query.append("last_update", new Document("$lt", date));
+			query.append("deleted", new Document("$eq", false)).append("last_update", new Document("$lt", date));
 			String targetCollection = Constants.ComponentScan.Collections.SCHEMA;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
@@ -92,8 +92,9 @@ public class RulesRepo implements IRulesRepo {
 			c.add(Calendar.DATE, -5);
 			date = c.getTime();
 
-			query.append("document.deleted", new Document("$eq", false));
-			query.append("document.last_update_date", new Document("$lt", date));
+			query.append("document.deleted",
+					new Document("$eq", false)).append("document.last_update_date", new Document("$lt", date));
+
 			String targetCollection = Constants.ComponentScan.Collections.FHIR_TRANSFORM;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
