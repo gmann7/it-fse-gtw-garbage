@@ -19,16 +19,16 @@ public class CollectionNaming {
     @Bean("transactionEventsBean")
     public String getTransactionDataCollection() {
         if (profileUtility.isTestProfile()) {
-            return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.TRANSACTION_DATA;
+            return Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
         }
-        return Constants.ComponentScan.Collections.TRANSACTION_DATA;
+        return Constants.Collections.TRANSACTION_DATA;
     }
     
     @Bean("iniEdsInvocationBean")
     public String getIniEdsCollection() {
         if (profileUtility.isTestProfile()) {
-            return Constants.Profile.TEST_PREFIX + Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
+            return Constants.Profile.TEST_PREFIX + Constants.Collections.INI_EDS_INVOCATION;
         }
-        return Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
+        return Constants.Collections.INI_EDS_INVOCATION;
     }
 }

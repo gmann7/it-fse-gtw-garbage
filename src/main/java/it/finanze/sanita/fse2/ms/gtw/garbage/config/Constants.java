@@ -17,49 +17,51 @@ public final class Constants {
 		/**
 		 * Base path.
 		 */
-		public static final String BASE = "it.sanita.fse2.ms.gtw.garbage";
+		public static final String BASE = "it.finanze.sanita.fse2.ms.gtw.garbage";
 
 		/**
 		 * Controller path.
 		 */
-		public static final String CONTROLLER = "it.sanita.fse2.ms.gtw.garbage.controller";
+		public static final String CONTROLLER = "it.finanze.sanita.fse2.ms.gtw.garbage.controller";
 
 		/**
 		 * Service path.
 		 */
-		public static final String SERVICE = "it.sanita.fse2.ms.gtw.garbage.service";
+		public static final String SERVICE = "it.finanze.sanita.fse2.ms.gtw.garbage.service";
 
 		/**
 		 * Configuration path.
 		 */
-		public static final String CONFIG = "it.sanita.fse2.ms.gtw.garbage.config";
+		public static final String CONFIG = "it.finanze.sanita.fse2.ms.gtw.garbage.config";
 		
 		/**
 		 * Configuration mongo path.
 		 */
-		public static final String CONFIG_MONGO = "it.sanita.fse2.ms.gtw.garbage.config.mongo";
+		public static final String CONFIG_MONGO = "it.finanze.sanita.fse2.ms.gtw.garbage.config.mongo";
 		
 		/**
 		 * Configuration mongo repository path.
 		 */
-		public static final String REPOSITORY_MONGO = "it.sanita.fse2.ms.gtw.garbage.repository";
+		public static final String REPOSITORY_MONGO = "it.finanze.sanita.fse2.ms.gtw.garbage.repository";
 
-		public static final class Collections {
-
-			public static final String TRANSACTION_DATA = "transaction_data";
-
-			public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
-
-			private Collections() {
-
-			}
-		}
-		
+				
 		private ComponentScan() {
 			//This method is intentionally left blank.
 		}
 
 	}
+	
+	public static final class Collections {
+
+		public static final String TRANSACTION_DATA = "transaction_data";
+
+		public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
+
+		private Collections() {
+
+		}
+	}
+
 
 	public static final class ConfigItems {
 
