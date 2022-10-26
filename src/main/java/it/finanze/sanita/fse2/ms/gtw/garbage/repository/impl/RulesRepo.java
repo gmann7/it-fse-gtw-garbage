@@ -3,8 +3,6 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.management.Query;
-
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -20,6 +18,11 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 public class RulesRepo implements IRulesRepo {
 
+	/**
+	 * Serial version uid.
+	 */
+	private static final long serialVersionUID = 8523735389685074232L;
+	
 	@Qualifier("mongo-template-rules")
 	@Autowired
 	MongoTemplate mongoTemplate;
@@ -38,7 +41,7 @@ public class RulesRepo implements IRulesRepo {
 
 			query.append("deleted", new Document("$eq", false)).append("last_update_date", new Document("$lt", date));
 
-			String targetCollection = Constants.ComponentScan.Collections.SCHEMATRON;
+			String targetCollection = Constants.Collections.SCHEMATRON;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
 			long result = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
@@ -65,7 +68,7 @@ public class RulesRepo implements IRulesRepo {
 			date = c.getTime();
 
 			query.append("deleted", new Document("$eq", false)).append("last_update", new Document("$lt", date));
-			String targetCollection = Constants.ComponentScan.Collections.SCHEMA;
+			String targetCollection = Constants.Collections.SCHEMA;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
 			long result = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
@@ -95,7 +98,7 @@ public class RulesRepo implements IRulesRepo {
 			query.append("document.deleted",
 					new Document("$eq", false)).append("document.last_update_date", new Document("$lt", date));
 
-			String targetCollection = Constants.ComponentScan.Collections.FHIR_TRANSFORM;
+			String targetCollection = Constants.Collections.FHIR_TRANSFORM;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
 			long result = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();

@@ -45,7 +45,7 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 
 			query.append("_id", new Document("$in", idsToRemove));
 
-			String targetCollection = Constants.ComponentScan.Collections.VALIDATED_DOCUMENTS;
+			String targetCollection = Constants.Collections.VALIDATED_DOCUMENTS;
 			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
 
 			output = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
