@@ -13,22 +13,45 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
 @Configuration
 public class CollectionNaming {
 
-    @Autowired
-    private ProfileUtility profileUtility;
+	@Autowired
+	private ProfileUtility profileUtility;
 
-    @Bean("transactionEventsBean")
-    public String getTransactionDataCollection() {
-        if (profileUtility.isTestProfile()) {
-            return Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
-        }
-        return Constants.Collections.TRANSACTION_DATA;
-    }
-    
-    @Bean("iniEdsInvocationBean")
-    public String getIniEdsCollection() {
-        if (profileUtility.isTestProfile()) {
-            return Constants.Profile.TEST_PREFIX + Constants.Collections.INI_EDS_INVOCATION;
-        }
-        return Constants.Collections.INI_EDS_INVOCATION;
+	@Bean("transactionEventsBean")
+	public String getTransactionDataCollection() {
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.TRANSACTION_DATA;
+		}
+		return Constants.Collections.TRANSACTION_DATA;
+	}
+
+	@Bean("iniEdsInvocationBean")
+	public String getIniEdsInvocationCollection() {
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.INI_EDS_INVOCATION;
+		}
+		return Constants.Collections.INI_EDS_INVOCATION;
+	}
+
+	@Bean("validatedDocumentsBean")
+	public String getValidatedDocuments() {
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.VALIDATED_DOCUMENTS;
+		}
+		return Constants.Collections.VALIDATED_DOCUMENTS;
+	}
+
+	@Bean("schemaBean")
+	public String getSchema() {
+		return Constants.Profile.TEST_PREFIX + Constants.Collections.SCHEMA;
+	}
+
+	@Bean("schematronBean")
+	public String getSchematron() {
+		return Constants.Profile.TEST_PREFIX + Constants.Collections.SCHEMATRON;
+	}
+
+	@Bean("structuresBean")
+    public String getStructuresCollection() {
+        return Constants.Profile.TEST_PREFIX + Constants.Collections.FHIR_TRANSFORM;
     }
 }

@@ -39,7 +39,7 @@ public class DataRepo implements IDataRepo {
 	@Override
 	public int deleteIds(final List<String> ids) {
 		Long output = null;
-				
+
 		try { 
 			Document query = new Document();
 		  

@@ -10,7 +10,7 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.config;
 public final class Constants {
 
 	/**
-	 *	Path scan.
+	 * Path scan.
 	 */
 	public static final class ComponentScan {
 
@@ -46,7 +46,7 @@ public final class Constants {
 
 				
 		private ComponentScan() {
-			//This method is intentionally left blank.
+			// This method is intentionally left blank.
 		}
 
 	}
@@ -55,7 +55,15 @@ public final class Constants {
 
 		public static final String TRANSACTION_DATA = "transaction_data";
 
-		public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
+			public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
+
+			public static final String VALIDATED_DOCUMENTS = "validated_documents";
+
+			public static final String SCHEMA = "schema";
+
+			public static final String SCHEMATRON = "schematron";
+			
+			public static final String FHIR_TRANSFORM = "transform";
 
 		private Collections() {
 
@@ -68,12 +76,17 @@ public final class Constants {
 		public static final String SUCCESS_TRANSACTION_RETENTION_HOURS = "SUCCESS";
 
 		public static final String BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "BLOCKING_ERROR";
-		
+
 		public static final String NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "NON_BLOCKING_ERROR";
 
-		private ConfigItems() {}
+		public static final String SUCCESS_VALDOC_RETENTION_DAY = "SUCCESS";
+
+		public static final String VALIDATED_DOCUMENT_DAYS = "5";
+
+		private ConfigItems() {
+		}
 	}
- 
+
 	public static final class Profile {
 
 		public static final String TEST = "test";
@@ -82,17 +95,17 @@ public final class Constants {
 
 		public static final String DEV = "dev";
 
-		/** 
+		/**
 		 * Constructor.
 		 */
 		private Profile() {
-			//This method is intentionally left blank.
+			// This method is intentionally left blank.
 		}
 
 	}
-  
+
 	/**
-	 *	Constants.
+	 * Constants.
 	 */
 	private Constants() {
 
