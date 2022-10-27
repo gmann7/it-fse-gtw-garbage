@@ -9,8 +9,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.catalina.webresources.war.Handler;
-
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -31,6 +29,19 @@ public class DateUtility implements Serializable {
 		cal.setTime(new Date());
 		cal.add(Calendar.HOUR_OF_DAY, -nHours);
 		return cal.getTime();
+	}
+	
+	public static Date addDay(final Date date, final Integer nDays) {
+		Calendar c = Calendar.getInstance();
+		try {
+			c.setTime(date);
+			c.add(Calendar.DATE, nDays);
+		} catch(Exception ex) {
+			log.error("Error while perform addDay : " , ex);
+			throw new BusinessException("Error while perform addDay : " , ex);
+		}
+		return c.getTime();
+		
 	}
 
 	/**

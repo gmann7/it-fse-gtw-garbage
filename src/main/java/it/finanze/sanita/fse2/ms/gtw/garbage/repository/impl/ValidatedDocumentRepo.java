@@ -13,11 +13,13 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
+import com.mongodb.client.result.DeleteResult;
+
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.ValidatedDocumentEventsETY;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.ValidatedDocumentsETY;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -60,24 +62,22 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 	}
 
 	@Override
-	public List<ValidatedDocumentEventsETY> findOldValidatedDocument(Date oldToRemove) {
-		List<ValidatedDocumentEventsETY> output = new ArrayList<>();
-
+	public Integer deleteValidatedDocuments(final Date oldToRemove) {
+		Integer deletedRecords = 0;
 		try {
-
 			Query query = new Query();
-			query.fields().include("insertion_date");
 			query.addCriteria(Criteria.where("insertion_date").lt(oldToRemove));
 			query.limit(retentionCfg.getQueryLimit());
 
-			output = mongoTemplate.find(query, ValidatedDocumentEventsETY.class);
+			DeleteResult dRes = mongoTemplate.remove(query, ValidatedDocumentsETY.class);
+			deletedRecords = (int)dRes.getDeletedCount();
 
 		} catch (Exception e) {
 			log.error("Errore nel tentativo di recuperare i documents");
 			throw new BusinessException("Errore nel tentativo di recuperare i documents", e);
 		}
 
-		return output;
+		return deletedRecords;
 	}
 
 }

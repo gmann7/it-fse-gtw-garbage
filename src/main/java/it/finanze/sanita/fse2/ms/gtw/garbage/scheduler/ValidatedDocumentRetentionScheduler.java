@@ -17,7 +17,7 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 public class ValidatedDocumentRetentionScheduler implements Serializable {
 
 	/**
-	 * 
+	 * Serial version uid.
 	 */
 	private static final long serialVersionUID = -4184197312700021073L;
 
@@ -31,7 +31,6 @@ public class ValidatedDocumentRetentionScheduler implements Serializable {
 	}
 
 	public void run() {
-
 		log.debug("ValidatedDocument Retention Scheduler - Retention Scheduler starting");
 		try {
 			// Lettura Config remote.
@@ -39,11 +38,11 @@ public class ValidatedDocumentRetentionScheduler implements Serializable {
 
 			// Eliminazione Validated Document in base alle configurazioni recuperate.
 			for (Entry<String, Integer> config : configs.entrySet()) {
-				retentionSRV.deleteOnValDocDB(config.getValue());
+				retentionSRV.deleteValidatedDocuments(config.getValue());
 			}
 
 		} catch (Exception e) {
-			log.warn("ValidatedDocument Retention Scheduler - Error while executing data retention", e);
+			log.error("ValidatedDocument Retention Scheduler - Error while executing data retention", e);
 		}
 
 		log.debug("ValidatedDocument Retention Scheduler - Retention Scheduler finished");

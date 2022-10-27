@@ -42,16 +42,26 @@ public class CollectionNaming {
 
 	@Bean("schemaBean")
 	public String getSchema() {
-		return Constants.Profile.TEST_PREFIX + Constants.Collections.SCHEMA;
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.SCHEMA;	
+		}
+		return Constants.Collections.SCHEMA;
+		
 	}
 
 	@Bean("schematronBean")
 	public String getSchematron() {
-		return Constants.Profile.TEST_PREFIX + Constants.Collections.SCHEMATRON;
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.SCHEMATRON;	
+		}
+		return Constants.Collections.SCHEMATRON;
 	}
 
 	@Bean("structuresBean")
     public String getStructuresCollection() {
-        return Constants.Profile.TEST_PREFIX + Constants.Collections.FHIR_TRANSFORM;
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.FHIR_TRANSFORM;	
+		}
+		return Constants.Collections.FHIR_TRANSFORM;
     }
 }
