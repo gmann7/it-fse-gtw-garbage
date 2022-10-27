@@ -64,6 +64,8 @@ public final class Constants {
 			public static final String SCHEMATRON = "schematron";
 			
 			public static final String FHIR_TRANSFORM = "transform";
+			
+			public static final String XSLT_TRANSFORM = "xsl_transform";
 
 		private Collections() {
 
@@ -80,6 +82,8 @@ public final class Constants {
 		public static final String NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS = "NON_BLOCKING_ERROR";
 
 		public static final String VALIDATED_DOCUMENT_RETENTION_DAY = "VALIDATED_DOCUMENT_RETENTION_DAY";
+		
+		public static final String CFT_ITEMS_RETENTION_DAY = "CFT_ITEMS_RETENTION_DAY";
 
 		private ConfigItems() {
 		}

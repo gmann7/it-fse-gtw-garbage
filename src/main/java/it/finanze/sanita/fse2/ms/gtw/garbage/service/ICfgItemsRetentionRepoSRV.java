@@ -10,7 +10,7 @@ import java.util.Map;
  * @author AndreaPerquoti
  *
  */
-public interface IRulesRetentionSRV extends Serializable {
+public interface ICfgItemsRetentionRepoSRV extends Serializable {
 
 	/**
 	 * Metodo che determina le regole di retention e le applica eliminando dati sul
@@ -18,7 +18,7 @@ public interface IRulesRetentionSRV extends Serializable {
 	 * 
 	 * @return true in caso di riuscita.
 	 */
-	Boolean deleteOnRulesDB(boolean deletedCollection);
+	void deleteCFGItems(int day);
 
 	/**
 	 * @return

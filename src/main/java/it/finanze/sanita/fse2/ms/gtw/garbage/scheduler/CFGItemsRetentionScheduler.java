@@ -1,7 +1,6 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.scheduler;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -9,13 +8,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.service.IDataRetentionSRV;
+import it.finanze.sanita.fse2.ms.gtw.garbage.service.ICfgItemsRetentionRepoSRV;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 @Slf4j
 @Component
-public class RulesRetentionScheduler implements Serializable {
+public class CFGItemsRetentionScheduler implements Serializable {
 
 	/**
 	 * 
@@ -23,7 +22,7 @@ public class RulesRetentionScheduler implements Serializable {
 	private static final long serialVersionUID = -4184197312700021073L;
 
 	@Autowired
-	private IDataRetentionSRV retentionSRV;
+	private ICfgItemsRetentionRepoSRV retentionSRV;
 
 	@Scheduled(cron = "${scheduler.rules-retention}")
 	@SchedulerLock(name = "invokeRulesRetentionScheduler", lockAtMostFor = "60m")
@@ -41,9 +40,7 @@ public class RulesRetentionScheduler implements Serializable {
 
 			// Eliminazione Transactions in base alle configurazioni recuperate.
 			for (Entry<String, Integer> config : configs.entrySet()) {
-				List<String> wfii = retentionSRV.deleteOnTransactionDB(config.getKey(), config.getValue());
-				// Eliminazione Data&Metadata relazionate con le Transactions.
-				retentionSRV.deleteOnDataDB(wfii);
+				retentionSRV.deleteCFGItems(config.getValue());
 			}
 
 		} catch (Exception e) {
