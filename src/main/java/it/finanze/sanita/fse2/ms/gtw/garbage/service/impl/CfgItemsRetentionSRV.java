@@ -52,8 +52,8 @@ public class CfgItemsRetentionSRV implements ICfgItemsRetentionRepoSRV {
 
 		try {
 			final Map<String, String> items = configClient.getConfigurationItems().get(0).getItems();
-			output.put(Constants.ConfigItems.CFT_ITEMS_RETENTION_DAY,
-					Integer.parseInt(items.get(Constants.ConfigItems.CFT_ITEMS_RETENTION_DAY)));
+			output.put(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY,
+					Integer.parseInt(items.get(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY)));
 		} catch (Exception e) {
 			log.error("Errore durante la lettura delle configurazioni necessarie per la Data Retention. ", e);
 			throw new BusinessException(

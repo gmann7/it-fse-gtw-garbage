@@ -83,7 +83,7 @@ public final class Constants {
 
 		public static final String VALIDATED_DOCUMENT_RETENTION_DAY = "VALIDATED_DOCUMENT_RETENTION_DAY";
 		
-		public static final String CFT_ITEMS_RETENTION_DAY = "CFT_ITEMS_RETENTION_DAY";
+		public static final String CFG_ITEMS_RETENTION_DAY = "CFG_ITEMS_RETENTION_DAY";
 
 		private ConfigItems() {
 		}

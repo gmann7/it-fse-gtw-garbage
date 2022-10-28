@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.controller.ISchedulerCTL;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.DeletedSchedulerResDTO;
+import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.CFGItemsRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.ValidatedDocumentRetentionScheduler;
 
@@ -30,6 +31,9 @@ public class SchedulerCTL extends AbstractCTL implements ISchedulerCTL {
 	@Autowired
 	private ValidatedDocumentRetentionScheduler validatedDocsScheduler;
 	
+	@Autowired
+	private CFGItemsRetentionScheduler cfgItemsScheduler;
+	
 	@Override
 	public DeletedSchedulerResDTO runSchedulerDataRetention(HttpServletRequest request) {
 		Map<String,Integer> out = dataRetentionScheduler.action();
@@ -39,6 +43,11 @@ public class SchedulerCTL extends AbstractCTL implements ISchedulerCTL {
 	@Override
 	public void runSchedulerValidatedDocuments(HttpServletRequest request) {
 		validatedDocsScheduler.action();
+	}
+	
+	@Override
+	public void runSchedulerCfgItems(HttpServletRequest request) {
+		cfgItemsScheduler.action();
 	}
 
 	 
