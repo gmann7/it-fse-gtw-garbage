@@ -18,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 /**
- * @author AndreaPerquoti
  *
  */
 @Slf4j

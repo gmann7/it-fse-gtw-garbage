@@ -11,7 +11,6 @@ import lombok.Getter;
 /**
  * Maps every ms property necessary to this microservice.
  * 
- * @author Simone Lungarella
  */
 @Getter
 @Configuration

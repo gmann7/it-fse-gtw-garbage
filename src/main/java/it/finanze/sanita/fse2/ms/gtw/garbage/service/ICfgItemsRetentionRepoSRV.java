@@ -1,5 +1,5 @@
-/**
- * 
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.service;
 
@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.Map;
 
 /**
- * @author AndreaPerquoti
  *
  */
 public interface ICfgItemsRetentionRepoSRV extends Serializable {

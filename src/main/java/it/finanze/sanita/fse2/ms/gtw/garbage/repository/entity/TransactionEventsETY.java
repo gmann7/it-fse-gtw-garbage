@@ -18,7 +18,6 @@ import lombok.NoArgsConstructor;
 /**
  * Model to save validation events.
  * 
- * @author AndreaPerquoti
  *
  */
 @Data

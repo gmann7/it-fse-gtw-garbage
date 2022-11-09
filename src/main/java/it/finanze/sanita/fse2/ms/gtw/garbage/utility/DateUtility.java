@@ -13,7 +13,6 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * @author AndreaPerquoti
  *
  */
 @Slf4j

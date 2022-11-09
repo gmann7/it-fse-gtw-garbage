@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @author AndreaPerquoti
  *
  */
 public interface IDataRepo extends Serializable {

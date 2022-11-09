@@ -12,7 +12,6 @@ import org.bson.types.ObjectId;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.TransactionEventsETY;
 
 /**
- * @author AndreaPerquoti
  *
  */
 public interface ITransactionsRepo extends Serializable {

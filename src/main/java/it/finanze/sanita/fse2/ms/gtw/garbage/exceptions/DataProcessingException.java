@@ -1,10 +1,12 @@
+/*
+ * SPDX-License-Identifier: AGPL-3.0-or-later
+ */
 package it.finanze.sanita.fse2.ms.gtw.garbage.exceptions;
 
 import java.io.IOException;
 
 /**
  * Describe data elaboration exception (I/O conversions)
- * @author G. Baittiner
  */
 public class DataProcessingException extends IOException {
 

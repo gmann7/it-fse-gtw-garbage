@@ -13,7 +13,6 @@ import lombok.Setter;
 /**
  * Configuration item entity received from gtw-config.
  * 
- * @author Simone Lungarella
  */
 @Getter
 @Setter

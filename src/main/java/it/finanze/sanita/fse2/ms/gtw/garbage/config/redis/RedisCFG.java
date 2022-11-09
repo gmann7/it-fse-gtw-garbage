@@ -21,7 +21,6 @@ import net.javacrumbs.shedlock.provider.redis.spring.RedisLockProvider;
 /**
  * Configuration class redis.
  * 
- * @author AndreaPerquoti
  *
  */
 @Configuration
