@@ -25,7 +25,6 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 
 /**
- * @author AndreaPerquoti
  *
  */
 @Configuration

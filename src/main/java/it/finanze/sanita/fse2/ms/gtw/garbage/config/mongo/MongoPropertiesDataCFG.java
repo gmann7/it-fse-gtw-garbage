@@ -12,7 +12,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * @author AndreaPerquoti
  * 
  *	Mongo properties configuration.
  */

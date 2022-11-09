@@ -29,7 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Client that consent to call gtw-config to retrieve configuration items.
  * 
- * @author Simone Lungarella
  */
 @Slf4j
 @Component

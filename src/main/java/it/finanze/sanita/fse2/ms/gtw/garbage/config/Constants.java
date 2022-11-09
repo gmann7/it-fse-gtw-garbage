@@ -4,7 +4,6 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.config;
 
 /**
- * @author AndreaPerquoti
  *
  */
 public final class Constants {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author AndreaPerquoti
  *
  */
 public interface IDataRetentionSRV extends Serializable {
