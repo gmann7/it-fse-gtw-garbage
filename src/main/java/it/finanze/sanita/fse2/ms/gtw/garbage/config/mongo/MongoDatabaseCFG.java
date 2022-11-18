@@ -23,6 +23,8 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
+import net.javacrumbs.shedlock.core.LockProvider;
+import net.javacrumbs.shedlock.provider.mongo.MongoLockProvider;
 
 /**
  *
@@ -122,6 +124,11 @@ public class MongoDatabaseCFG {
 				mongoMappingContext);
 		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
 		return new MongoTemplate(factory, converter);
+	}
+	
+	@Bean
+	public LockProvider lockProvider(MongoTemplate template) {
+		return new MongoLockProvider(template.getDb());
 	}
 
 }
