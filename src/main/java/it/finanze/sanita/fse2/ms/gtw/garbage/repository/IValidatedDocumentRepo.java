@@ -11,7 +11,7 @@ import org.bson.types.ObjectId;
 
 public interface IValidatedDocumentRepo extends Serializable {
 
-	Integer deleteValidatedDocuments(Date oldToRemove);
+	List<String> deleteValidatedDocuments(Date oldToRemove);
 	
 	int deleteOldValidatedDocument(List<ObjectId> idsToRemove);
 	

@@ -32,22 +32,15 @@ public class DataRepo implements IDataRepo {
 	@Qualifier("mongo-template-data")
 	private transient MongoTemplate mongoTemplate;
 
-//	@Autowired
-//	private transient ProfileUtility profileUtility;
 
 	@Override
-	public int deleteIds(final List<String> ids) {
+	public int deleteIds(final List<String> workflowInstanceId) {
 		Long output = null;
 
 		try { 
 			Document query = new Document();
 		  
-			query.append("workflow_instance_id", new Document("$in", ids));
-//			String targetCollection = Constants.ComponentScan.Collections.INI_EDS_INVOCATION;
-//			if (profileUtility.isTestProfile()) {
-//				targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
-//			}
-
+			query.append("workflow_instance_id", new Document("$in", workflowInstanceId));
 			output = mongoTemplate.getCollection(mongoTemplate.getCollectionName(IniEdsInvocationETY.class)).deleteMany(query).getDeletedCount();
 			
 		} catch (Exception e) {

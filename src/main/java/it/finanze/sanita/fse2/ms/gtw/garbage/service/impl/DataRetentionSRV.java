@@ -3,13 +3,11 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.service.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +18,6 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IDataRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.ITransactionsRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.TransactionEventsETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IDataRetentionSRV;
-import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -61,39 +58,6 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 	}
 
 	@Override
-	public List<String> deleteOnTransactionDB(final String state, final int hoursTransactionsDB) {
-		List<String> output = new ArrayList<>();
-
-		try {
-			log.debug("DELETE DATA ON TRANSACTIONS-DB - starting...");
-
-			// Find.
-			log.debug("DELETE DATA ON TRANSACTIONS-DB - find records to delete...");
-			Date dateToRemove = DateUtility.getDateCondition(hoursTransactionsDB);
-			List<TransactionEventsETY> entities = transactionsRepo.findOldTransactions(state, dateToRemove);
-
-			List<ObjectId> ids = new ArrayList<>();
-			for (TransactionEventsETY e : entities) {
-				output.add(e.getWorkflowInstanceId());
-				ids.add(new ObjectId(e.getId()));
-			}
-
-			// Delete.
-			log.debug("DELETE DATA ON TRANSACTIONS-DB - delete record with state {}...", state);
-			int recordDeleted = transactionsRepo.deleteOldTransactions(ids);
-
-			log.debug("DELETE DATA ON TRANSACTIONS-DB- Records deleted {} with STATE {}.", recordDeleted, state);
-			log.debug("DELETE DATA ON TRANSACTIONS-DB - finished.");
-		} catch (Exception e) {
-			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
-			throw new BusinessException(
-					"Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
-		}
-
-		return output;
-	}
-
-	@Override
 	public Map<String, Integer> readConfigurations() {
 		Map<String, Integer> output = new HashMap<>();
 
@@ -114,4 +78,22 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 		return output;
 	}
 
+	@Override
+	public void deleteTransactionData() {
+
+		try {
+			String eventType = "EDS_WORKFLOW";
+			List<TransactionEventsETY> transactionDataDeleted = transactionsRepo.deleteExpiringTransactionData(eventType);
+			
+			if(transactionDataDeleted!=null) {
+				List<String> transactiondeleted = transactionDataDeleted.stream().map(e->e.getWorkflowInstanceId()).collect(Collectors.toList());
+				dataRepo.deleteIds(transactiondeleted);
+			}
+		} catch (Exception e) {
+			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
+			throw new BusinessException(
+					"Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
+		}
+
+	}
 }

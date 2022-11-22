@@ -26,11 +26,12 @@ public interface IDataRetentionSRV extends Serializable {
 	 * 
 	 * @return Lista di Ids da eliminare.
 	 */
-	List<String> deleteOnTransactionDB(final String state, final int hoursTransactionsDB);
-
+	void deleteTransactionData();
+	
 	/**
 	 * @return
 	 */
 	Map<String, Integer> readConfigurations();
+	
 
 }

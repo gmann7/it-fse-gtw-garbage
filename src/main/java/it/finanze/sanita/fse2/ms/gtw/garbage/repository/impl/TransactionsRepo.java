@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -41,8 +40,6 @@ public class TransactionsRepo implements ITransactionsRepo {
     @Autowired
 	private transient RetentionCFG retentionCfg;
 
-//	@Autowired
-//	private transient ProfileUtility profileUtility;
     
 	@Override
 	public int deleteOldTransactions(final List<ObjectId> idsToRemove) {
@@ -52,10 +49,6 @@ public class TransactionsRepo implements ITransactionsRepo {
 			Document query = new Document();
 			 
 			query.append("_id", new Document("$in", idsToRemove));
-//			String targetCollection = Constants.ComponentScan.Collections.TRANSACTION_DATA;
-//			if (profileUtility.isTestProfile()) {
-//				targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
-//			}
 			output = mongoTemplate.getCollection(mongoTemplate.getCollectionName(TransactionEventsETY.class)).deleteMany(query).getDeletedCount();
 			
 		} catch (Exception e) {
@@ -65,25 +58,27 @@ public class TransactionsRepo implements ITransactionsRepo {
 		
 		return output.intValue();
 	}
-
+	
+	
 	@Override
-	public List<TransactionEventsETY> findOldTransactions(String state, Date oldToRemove) {
-		List<TransactionEventsETY> output = new ArrayList<>();
-
+	public List<TransactionEventsETY> deleteExpiringTransactionData(final String eventType) {
+		List<TransactionEventsETY> output = null;
 		try {
-			
 			Query query = new Query();
-			query.fields().include("_id", "workflow_instance_id");
-			query.addCriteria(Criteria.where("eventStatus").is(state).and("eventDate").lte(oldToRemove));
+			query.fields().include("workflow_instance_id");
+			
+			Criteria criteria = new Criteria();
+			criteria.orOperator(Criteria.where("eventType").is(eventType).and("eventStatus").is("SUCCESS"), 
+					Criteria.where("eventStatus").is("BLOCKING_ERROR"));
+			criteria.and("expiring_date").lt(new Date());
+			query.addCriteria(criteria);
 			query.limit(retentionCfg.getQueryLimit());
-			
-			output = mongoTemplate.find(query, TransactionEventsETY.class);
-			
-		} catch (Exception e) {
-			log.error("Errore nel tentativo di recuperare le transactions con 'eventStatus': {} " , state);
-			throw new BusinessException("Errore nel tentativo di recuperare le transactions" , e);
+			output = mongoTemplate.findAllAndRemove(query, TransactionEventsETY.class);
+		} catch (Exception ex) {
+			log.error("Error while perform deleteExpiringTransactionData" , ex);
+			throw new BusinessException("Error while perform deleteExpiringTransactionData" , ex);
 		}
-		
+
 		return output;
 	}
 

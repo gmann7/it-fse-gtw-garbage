@@ -6,6 +6,7 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -15,8 +16,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
-
-import com.mongodb.client.result.DeleteResult;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
@@ -65,22 +64,25 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 	}
 
 	@Override
-	public Integer deleteValidatedDocuments(final Date oldToRemove) {
-		Integer deletedRecords = 0;
+	public List<String> deleteValidatedDocuments(final Date oldToRemove) {
+		List<String> output = new ArrayList<>();
 		try {
 			Query query = new Query();
+			query.fields().include("w_id");
 			query.addCriteria(Criteria.where("insertion_date").lt(oldToRemove));
 			query.limit(retentionCfg.getQueryLimit());
 
-			DeleteResult dRes = mongoTemplate.remove(query, ValidatedDocumentsETY.class);
-			deletedRecords = (int)dRes.getDeletedCount();
+			List<ValidatedDocumentsETY> validatedDocuments = mongoTemplate.findAllAndRemove(query, ValidatedDocumentsETY.class);
+			if(validatedDocuments!=null) {
+				output = validatedDocuments.stream().map(e->e.getWorkflowInstanceId()).collect(Collectors.toList());
+			}
 
 		} catch (Exception e) {
 			log.error("Errore nel tentativo di recuperare i documents");
 			throw new BusinessException("Errore nel tentativo di recuperare i documents", e);
 		}
 
-		return deletedRecords;
+		return output;
 	}
 
 }
