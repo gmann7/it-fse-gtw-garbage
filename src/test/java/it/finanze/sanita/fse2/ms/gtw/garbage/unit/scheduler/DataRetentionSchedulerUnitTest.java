@@ -109,7 +109,7 @@ class DataRetentionSchedulerUnitTest {
 		given(retentionCFG.getQueryLimit()).willReturn(size);
 
 		log.info(" START DATA PREPARATION... ");
-		transactionsPreparationItems(size, true, getHoursAfterInsertion());
+		transactionsPreparationItems(size, false, getHoursAfterInsertion());
 		
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
@@ -210,8 +210,8 @@ class DataRetentionSchedulerUnitTest {
 		given(retentionCFG.getQueryLimit()).willReturn(size);
 
 		log.info(" START DATA PREPARATION... ");
-		transactionsPreparationItems(size, true, getHoursAfterInsertion());
-		transactionsPreparationItems(size, true, getHoursAfterInsertion() + 2); // Oldest, ones to be deleted
+		transactionsPreparationItems(size, false, getHoursAfterInsertion());
+		transactionsPreparationItems(size, false, getHoursAfterInsertion() + 2); // Oldest, ones to be deleted
 		
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assumeTrue(transactions.size() == size*2, "Transactions should be inserted before testing the deletion");
@@ -243,7 +243,7 @@ class DataRetentionSchedulerUnitTest {
 		retentionScheduler.run();
 
 		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
-		assertTrue(CollectionUtils.isEmpty(transactions), "All items should have been deleted");
+		assertEquals(size, transactions.size(), "Only items in BLOCKING state should have been deleted");
 	}
 
 	@Test
@@ -265,17 +265,17 @@ class DataRetentionSchedulerUnitTest {
 		retentionScheduler.run();
 
 		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
-		assertEquals(size, transactions.size(), "Only items in SUCCESS state should have been deleted");
+		assertEquals(size, transactions.size(), "Only items in BLOCKING state should have been deleted");
 
-		transactions.forEach(transaction -> assertEquals(Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, transaction.getEventStatus(), "All remaining items should have be in error"));
+		transactions.forEach(transaction -> assertEquals(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, transaction.getEventStatus(), "All remaining items should have be in error"));
 
 		data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
 		assertEquals(size, data.size(), "Only half of data should have been deleted");
 	}
 
-	void transactionsPreparationItems(final int size, final boolean isSuccessful, final int hourseAfterInsertion) {
+	void transactionsPreparationItems(final int size, final boolean isSuccessful, final int hoursAfterInsertion) {
 		
-		Date oldDate = DateUtility.getDateCondition(hourseAfterInsertion);
+		Date oldDate = DateUtility.getDateCondition(hoursAfterInsertion);
 
 		List<Document> data = new ArrayList<>();
 		List<TransactionEventsETY> dataList = new ArrayList<>();
@@ -285,6 +285,7 @@ class DataRetentionSchedulerUnitTest {
 			data.add(new Document().append("workflow_instance_id", id));
 			transaction.setWorkflowInstanceId(id);
 			transaction.setEventDate(oldDate);
+			transaction.setExpiringDate(oldDate);
 			transaction.setEventStatus(isSuccessful ? Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS : Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS);
 			dataList.add(transaction);
 		}

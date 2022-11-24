@@ -72,5 +72,7 @@ public class TransactionEventsETY implements Serializable {
 	@Field(name = "workflow_instance_id")
 	@Size(min = 0, max = 100)
 	private String workflowInstanceId;
-    
+	
+	@Field(name = "expiring_date")
+	private Date expiringDate;  
 }
