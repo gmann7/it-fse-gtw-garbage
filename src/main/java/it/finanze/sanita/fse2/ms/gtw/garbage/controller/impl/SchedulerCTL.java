@@ -20,11 +20,6 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.ValidatedDocumentRetentio
 @RestController
 public class SchedulerCTL extends AbstractCTL implements ISchedulerCTL {
 
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = 5310603052337351897L;
-	
 	@Autowired
 	private DataRetentionScheduler dataRetentionScheduler;
 	

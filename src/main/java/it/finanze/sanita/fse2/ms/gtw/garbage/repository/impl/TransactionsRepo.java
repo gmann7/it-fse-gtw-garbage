@@ -28,17 +28,12 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 public class TransactionsRepo implements ITransactionsRepo {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7642250403832399384L;
-
 	@Autowired
 	@Qualifier("mongo-template-transaction")
-	private transient MongoTemplate mongoTemplate;
+	private MongoTemplate mongoTemplate;
 
     @Autowired
-	private transient RetentionCFG retentionCfg;
+	private RetentionCFG retentionCfg;
 
     
 	@Override

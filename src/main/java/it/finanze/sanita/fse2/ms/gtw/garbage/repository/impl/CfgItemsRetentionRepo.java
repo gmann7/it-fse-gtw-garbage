@@ -22,10 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = 8523735389685074232L;
 	
 	@Qualifier("mongo-template-rules")
 	@Autowired

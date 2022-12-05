@@ -23,10 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 @Repository
 public class DataRepo implements IDataRepo {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5438541055594366103L;
 
 	@Autowired
 	@Qualifier("mongo-template-data")

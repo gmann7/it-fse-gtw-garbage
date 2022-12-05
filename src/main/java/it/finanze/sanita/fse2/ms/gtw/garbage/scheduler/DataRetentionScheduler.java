@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.scheduler;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,13 +19,8 @@ import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
  */
 @Slf4j
 @Component
-public class DataRetentionScheduler implements Serializable {
+public class DataRetentionScheduler {
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -4184197312700021073L;
-
     @Autowired
     private IDataRetentionSRV retentionSRV;
     

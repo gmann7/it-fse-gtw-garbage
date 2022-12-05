@@ -3,29 +3,18 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.controller.impl;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Autowired;
 
 import brave.Tracer;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.LogTraceInfoDTO;
-import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
- *
  *	Abstract controller.
  */
-@Slf4j
-public abstract class AbstractCTL implements Serializable {
+public abstract class AbstractCTL {
 
-	/**
-	 * Serial version uid.
-	 */
-	private static final long serialVersionUID = -3077780100650268134L;
-	
 	@Autowired
-	private transient Tracer tracer;
+	private Tracer tracer;
  
 
 	protected LogTraceInfoDTO getLogTraceInfo() {

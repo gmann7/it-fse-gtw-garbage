@@ -4,7 +4,6 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.intThat;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -18,13 +17,14 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 
 @SpringBootTest(classes = { DateUtility.class })
 @ExtendWith(SpringExtension.class)
 @ComponentScan(basePackages = { "it.sanita.garbage" })
-@ActiveProfiles("test")
-public class DateUtilityTest {
+@ActiveProfiles(Constants.Profile.TEST)
+class DateUtilityTest {
 
 	@Test
 	@DisplayName("date verified")

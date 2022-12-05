@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity;
 
-import java.io.Serializable;
 import java.util.Date;
 
 import javax.validation.constraints.Size;
@@ -17,19 +16,12 @@ import lombok.NoArgsConstructor;
 
 /**
  * Model to save validation events.
- * 
- *
  */
 @Data
 @NoArgsConstructor
 @Document(collection = "#{@transactionEventsBean}")
-public class TransactionEventsETY implements Serializable {
-
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 2850915786807771047L;
-
+public class TransactionEventsETY {
+ 
 	@Id
 	@Size(min = 0, max = 100)
 	private String id;

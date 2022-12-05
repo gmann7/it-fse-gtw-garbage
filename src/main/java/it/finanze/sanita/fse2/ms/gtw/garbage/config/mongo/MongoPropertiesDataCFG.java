@@ -3,8 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.config.mongo;
 
-import java.io.Serializable;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,19 +10,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 
  *	Mongo properties configuration.
  */
 @Data
 @Component
 @EqualsAndHashCode(callSuper = false)
-public class MongoPropertiesDataCFG implements Serializable {
+public class MongoPropertiesDataCFG {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 5927138450543939809L;
-	 
 	@Value("${data.mongodb.uri}")
 	private String uri;
 		

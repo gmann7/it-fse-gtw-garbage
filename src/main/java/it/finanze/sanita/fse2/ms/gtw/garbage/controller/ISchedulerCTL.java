@@ -3,8 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.controller;
 
-import java.io.Serializable;
-
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.MediaType;
@@ -17,7 +15,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.DeletedSchedulerResDTO;
 
-public interface ISchedulerCTL extends Serializable {
+public interface ISchedulerCTL {
 
 	@PostMapping("/run-scheduler")
 	@Operation(summary = "Run scheduler", description = "Run scheduler.")
