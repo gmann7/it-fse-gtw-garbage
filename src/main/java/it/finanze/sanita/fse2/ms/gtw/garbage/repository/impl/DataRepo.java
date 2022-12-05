@@ -26,7 +26,7 @@ public class DataRepo implements IDataRepo {
 
 	@Autowired
 	@Qualifier("mongo-template-data")
-	private transient MongoTemplate mongoTemplate;
+	private MongoTemplate mongoTemplate;
 
 
 	@Override

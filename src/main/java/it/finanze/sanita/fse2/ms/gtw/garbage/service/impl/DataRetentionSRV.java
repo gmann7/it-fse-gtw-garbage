@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IDataRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.ITransactionsRepo;
@@ -54,12 +55,14 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 	public void deleteTransactionData() {
 
 		try {
-			String eventType = "EDS_WORKFLOW";
-			List<TransactionEventsETY> transactionDataDeleted = transactionsRepo.deleteExpiringTransactionData(eventType);
+			List<TransactionEventsETY> transactionDataDeleted = transactionsRepo.findExpiringTransactionData(Constants.FINAL_STATUS);
 			
 			if(transactionDataDeleted!=null) {
-				List<String> transactiondeleted = transactionDataDeleted.stream().map(e->e.getWorkflowInstanceId()).collect(Collectors.toList());
-				dataRepo.deleteIds(transactiondeleted);
+				List<String> wiiToDelete = transactionDataDeleted.stream().map(TransactionEventsETY::getWorkflowInstanceId).collect(Collectors.toList());
+				Integer deletedTransaction = transactionsRepo.deleteExpiringTransactionData(wiiToDelete);
+				log.debug("DELETED TRANSACTION:" + deletedTransaction);
+				Integer deletedIniEds = dataRepo.deleteIds(wiiToDelete);
+				log.debug("DELETED INI EDS:" + deletedIniEds);
 			}
 		} catch (Exception e) {
 			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);

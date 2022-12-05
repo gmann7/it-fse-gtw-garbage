@@ -7,6 +7,8 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.config;
  *
  */
 public final class Constants {
+	
+	public static final String FINAL_STATUS = "EDS_WORKFLOW";
 
 	
 	public static final class Collections {

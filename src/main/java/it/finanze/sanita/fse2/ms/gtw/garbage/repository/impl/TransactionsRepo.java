@@ -6,14 +6,14 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 import java.util.Date;
 import java.util.List;
 
-import org.bson.Document;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+
+import com.mongodb.client.result.DeleteResult;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
@@ -35,28 +35,9 @@ public class TransactionsRepo implements ITransactionsRepo {
     @Autowired
 	private RetentionCFG retentionCfg;
 
-    
-	@Override
-	public int deleteOldTransactions(final List<ObjectId> idsToRemove) {
-		Long output = null;
-				
-		try {
-			Document query = new Document();
-			 
-			query.append("_id", new Document("$in", idsToRemove));
-			output = mongoTemplate.getCollection(mongoTemplate.getCollectionName(TransactionEventsETY.class)).deleteMany(query).getDeletedCount();
-			
-		} catch (Exception e) {
-			log.error("Errore nel tentativo di eliminare la lista di ids nella collection 'transaction_data': " , e);
-			throw new BusinessException("Errore nel tentativo di eliminare la lista di ids nella collection 'transaction_data': " , e);
-		}
-		
-		return output.intValue();
-	}
-	
 	
 	@Override
-	public List<TransactionEventsETY> deleteExpiringTransactionData(final String eventType) {
+	public List<TransactionEventsETY> findExpiringTransactionData(final String eventType) {
 		List<TransactionEventsETY> output = null;
 		try {
 			Query query = new Query();
@@ -68,7 +49,23 @@ public class TransactionsRepo implements ITransactionsRepo {
 			criteria.and("expiring_date").lt(new Date());
 			query.addCriteria(criteria);
 			query.limit(retentionCfg.getQueryLimit());
-			output = mongoTemplate.findAllAndRemove(query, TransactionEventsETY.class);
+			output = mongoTemplate.find(query, TransactionEventsETY.class);
+		} catch (Exception ex) {
+			log.error("Error while perform find expiring transaction data" , ex);
+			throw new BusinessException("Error while perform find expiring transaction data" , ex);
+		}
+
+		return output;
+	}
+	
+	@Override
+	public Integer deleteExpiringTransactionData(final List<String> wii) {
+		Integer output = 0;
+		try {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("workflow_instance_id").in(wii));
+			DeleteResult dResult = mongoTemplate.remove(query, TransactionEventsETY.class);
+			output = (int)dResult.getDeletedCount();
 		} catch (Exception ex) {
 			log.error("Error while perform deleteExpiringTransactionData" , ex);
 			throw new BusinessException("Error while perform deleteExpiringTransactionData" , ex);
