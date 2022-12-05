@@ -34,7 +34,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
@@ -66,7 +65,6 @@ import lombok.extern.slf4j.Slf4j;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles(Constants.Profile.TEST)
 @DisplayName("Data Retention Scheduler Unit Test")
-@ComponentScan(basePackages = {Constants.ComponentScan.BASE})
 class DataRetentionSchedulerUnitTest {
 
 	/**
@@ -129,8 +127,6 @@ class DataRetentionSchedulerUnitTest {
 		List<ConfigItemETY> items = new ArrayList<>();
 		Map<String, String> configItems = new HashMap<>();
 		configItems.put(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
-		configItems.put(Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, String.valueOf(error));
-		configItems.put(Constants.ConfigItems.NON_BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS, String.valueOf(error));
 		items.add(new ConfigItemETY("GARBAGE", configItems));
 
 		ConfigItemsClient.ConfigItemDTO configItemDTO = new ConfigItemsClient.ConfigItemDTO();
@@ -286,7 +282,7 @@ class DataRetentionSchedulerUnitTest {
 			transaction.setWorkflowInstanceId(id);
 			transaction.setEventDate(oldDate);
 			transaction.setExpiringDate(oldDate);
-			transaction.setEventStatus(isSuccessful ? Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS : Constants.ConfigItems.BLOCKING_ERROR_TRANSACTION_RETENTION_HOURS);
+			transaction.setEventStatus(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS);
 			dataList.add(transaction);
 		}
 
