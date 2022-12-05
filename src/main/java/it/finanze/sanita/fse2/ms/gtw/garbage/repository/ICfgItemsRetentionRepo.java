@@ -8,4 +8,6 @@ import java.util.Date;
 public interface ICfgItemsRetentionRepo {
 
 	Integer deleteCfgItems(Date dateToRemove, Class<?> clazz);
+	
+	Integer deleteTerminology(Date dateToRemove);
 }

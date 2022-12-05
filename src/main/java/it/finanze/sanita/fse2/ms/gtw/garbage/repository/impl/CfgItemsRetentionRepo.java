@@ -16,6 +16,7 @@ import com.mongodb.client.result.DeleteResult;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.ICfgItemsRetentionRepo;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.DictionaryETY;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -41,6 +42,23 @@ public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 		} catch (Exception ex) {
 			log.error("Error while perform delete cfg items" , ex);
 			throw new BusinessException("Error while perform delete cfg items" , ex);
+		}
+		return cfgItemsDeleted;
+	}
+	
+	@Override
+	public Integer deleteTerminology(final Date dateToRemove) {
+		Integer cfgItemsDeleted = 0;
+
+		try {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("deleted").is(true).and("creationDate").lt(dateToRemove));
+
+			DeleteResult dRes = mongoTemplate.remove(query, DictionaryETY.class);
+			cfgItemsDeleted = (int)dRes.getDeletedCount();
+		} catch (Exception ex) {
+			log.error("Error while perform delete terminology" , ex);
+			throw new BusinessException("Error while perform delete terminology" , ex);
 		}
 		return cfgItemsDeleted;
 	}

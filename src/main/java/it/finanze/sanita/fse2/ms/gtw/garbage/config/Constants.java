@@ -27,6 +27,8 @@ public final class Constants {
 			
 			public static final String TERMINOLOGY = "terminology";
 			
+			public static final String DICTIONARY = "dictionary";
+			
 
 		private Collections() {
 
