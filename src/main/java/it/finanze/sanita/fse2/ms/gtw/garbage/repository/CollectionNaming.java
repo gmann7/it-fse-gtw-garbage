@@ -57,20 +57,20 @@ public class CollectionNaming {
 		return Constants.Collections.SCHEMATRON;
 	}
 
-	@Bean("structuresBean")
-    public String getStructuresCollection() {
+	@Bean("transformBean")
+    public String getTransformCollection() {
 		if (profileUtility.isTestProfile()) {
 			return Constants.Profile.TEST_PREFIX + Constants.Collections.FHIR_TRANSFORM;	
 		}
 		return Constants.Collections.FHIR_TRANSFORM;
     }
 	
-	@Bean("xslTransformBean")
-    public String getXsltCollection() {
+	@Bean("terminologyBean")
+    public String getTerminologyCollection() {
 		if (profileUtility.isTestProfile()) {
-			return Constants.Profile.TEST_PREFIX + Constants.Collections.XSLT_TRANSFORM;	
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.TERMINOLOGY;	
 		}
-		return Constants.Collections.XSLT_TRANSFORM;
+		return Constants.Collections.TERMINOLOGY;
     }
 	
 	

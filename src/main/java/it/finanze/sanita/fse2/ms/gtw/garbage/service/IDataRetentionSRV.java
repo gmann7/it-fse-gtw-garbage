@@ -3,14 +3,12 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.service;
 
-import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
  */
-public interface IDataRetentionSRV extends Serializable {
+public interface IDataRetentionSRV {
 
 	/**
 	 * Metodo che determina le regole di retention e le applica eliminando dati sul
@@ -27,11 +25,6 @@ public interface IDataRetentionSRV extends Serializable {
 	 * @return Lista di Ids da eliminare.
 	 */
 	void deleteTransactionData();
-	
-	/**
-	 * @return
-	 */
-	Map<String, Integer> readConfigurations();
 	
 
 }

@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 
 
 /**
- * Model to save xsl transform.
+ * Model to save transform.
  */
-@Document(collection = "#{@xslTransformBean}")
+@Document(collection = "#{@transformBean}")
 @Data
 @NoArgsConstructor
-public class XslTransformETY {
+public class TransformETY {
  
 	 
 }

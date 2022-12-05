@@ -1,0 +1,16 @@
+package it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity;
+
+import org.springframework.data.mongodb.core.mapping.Document;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+/**
+ * Model to read terminology.
+ */
+@Document(collection = "#{@terminologyBean}")
+@Data
+@NoArgsConstructor
+public class TerminologyETY {
+
+}
