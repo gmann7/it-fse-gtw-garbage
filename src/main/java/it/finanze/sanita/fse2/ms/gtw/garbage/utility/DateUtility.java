@@ -3,7 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.utility;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -16,12 +15,10 @@ import lombok.extern.slf4j.Slf4j;
  *
  */
 @Slf4j
-public class DateUtility implements Serializable {
+public class DateUtility {
+	
+	private DateUtility() {}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 135890017796561808L;
 
 	public static Date getDateCondition(final int nHours) {
 		final Calendar cal = Calendar.getInstance();
@@ -50,8 +47,8 @@ public class DateUtility implements Serializable {
 	 * @return boolean value, True to delete or False not to delete
 	 * 
 	 */
-
 	public static boolean dateOlderThan(String dateToCompare, int maxDaysToValidation) throws Exception {
+		boolean output = false;
 		try {
 			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 			LocalDate dateParser = LocalDate.parse(dateToCompare, df);
@@ -62,15 +59,11 @@ public class DateUtility implements Serializable {
 
 			int daysAway = todayDay - dayOfDocument;
 
-			if (daysAway > maxDaysToValidation) {
-				return true;
-			} else {
-				return false;
-			}
-		} catch (Exception logException) {
-
-			log.error("error", logException);
-			throw new BusinessException(logException);
+			output = daysAway > maxDaysToValidation;
+		} catch (Exception ex) {
+			log.error("Error while perform date older than method", ex);
+			throw new BusinessException(ex);
 		}
+		return output;
 	}
 }

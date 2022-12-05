@@ -28,14 +28,13 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Client that consent to call gtw-config to retrieve configuration items.
- * 
  */
 @Slf4j
 @Component
 public class ConfigItemsClient implements IConfigItemsClient {
     
     @Autowired
-    private transient RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 	
 	@Autowired
 	private MicroservicesURLCFG msUrlCFG;
