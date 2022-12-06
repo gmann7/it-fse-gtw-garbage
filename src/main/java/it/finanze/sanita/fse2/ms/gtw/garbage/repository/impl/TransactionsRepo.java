@@ -44,8 +44,11 @@ public class TransactionsRepo implements ITransactionsRepo {
 			query.fields().include("workflow_instance_id");
 			
 			Criteria criteria = new Criteria();
-			criteria.orOperator(Criteria.where("eventType").is(eventType).and("eventStatus").is("SUCCESS"), 
-					Criteria.where("eventStatus").is("BLOCKING_ERROR"));
+			criteria.orOperator(
+					Criteria.where("eventType").is(eventType).and("eventStatus").is("SUCCESS"), 
+					Criteria.where("eventStatus").is("BLOCKING_ERROR"),
+					Criteria.where("eventStatus").is("BLOCKING_ERROR_MAX_RETRY")
+					);
 			criteria.and("expiring_date").lt(new Date());
 			query.addCriteria(criteria);
 			query.limit(retentionCfg.getQueryLimit());
