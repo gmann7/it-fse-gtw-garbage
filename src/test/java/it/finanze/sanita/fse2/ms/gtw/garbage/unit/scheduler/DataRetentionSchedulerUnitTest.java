@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import org.bson.Document;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,6 +50,7 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.client.impl.ConfigItemsClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.IniEdsInvocationETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.TransactionEventsETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
@@ -66,11 +66,6 @@ import lombok.extern.slf4j.Slf4j;
 @ActiveProfiles(Constants.Profile.TEST)
 @DisplayName("Data Retention Scheduler Unit Test")
 class DataRetentionSchedulerUnitTest {
-
-	/**
-	 * Collection name of data.
-	 */
-	static final String DATA_COLLECTION = "test_ini_eds_invocation";
 
 	@Getter
 	static final int hoursAfterInsertion = 120;
@@ -94,7 +89,7 @@ class DataRetentionSchedulerUnitTest {
 
 	@BeforeEach
 	void setup() {
-		dataTemplate.dropCollection(DATA_COLLECTION);
+		dataTemplate.dropCollection(IniEdsInvocationETY.class);
 		dataTemplate.dropCollection(TransactionEventsETY.class);
 	}
 	
@@ -112,14 +107,14 @@ class DataRetentionSchedulerUnitTest {
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
 
-		List<Document> data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
 		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
 		retentionScheduler.run();
 
-		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		transactions = transactionTemplate.findAll(TransactionEventsETY.class);
 		assertTrue(CollectionUtils.isEmpty(transactions));
 
-		data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
+		data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
 		assertTrue(CollectionUtils.isEmpty(data));
 	}
 
@@ -169,33 +164,12 @@ class DataRetentionSchedulerUnitTest {
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
 
-		List<Document> data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
 		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
 		assertDoesNotThrow(() -> retentionScheduler.run());
 
 		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.INTERNAL_SERVER_ERROR);
 		assertDoesNotThrow(() -> retentionScheduler.run());
-	}
-
-	@Test
-	@DisplayName("Action only on items that passed threshold")
-	void noDeletion() {
-		final int size = 500;
-		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.OK);
-		given(retentionCFG.getQueryLimit()).willReturn(size);
-
-		log.info(" START DATA PREPARATION... ");
-		transactionsPreparationItems(size, true, getHoursAfterInsertion());
-
-		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
-		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
-
-		List<Document> data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
-		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
-		retentionScheduler.run();
-
-		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
-		assertEquals(size, transactions.size(), "No item should have been deleted");
 	}
 
 	@Test
@@ -212,7 +186,7 @@ class DataRetentionSchedulerUnitTest {
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assumeTrue(transactions.size() == size*2, "Transactions should be inserted before testing the deletion");
 
-		List<Document> data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
 		assumeTrue(data.size() == size*2, "Data should be inserted before testing the deletion.");
 		retentionScheduler.run();
 
@@ -234,59 +208,42 @@ class DataRetentionSchedulerUnitTest {
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assumeTrue(transactions.size() == size*2, "Transactions should be inserted before testing the deletion");
 
-		List<Document> data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
 		assumeTrue(data.size() == size*2, "Data should be inserted before testing the deletion.");
 		retentionScheduler.run();
 
 		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
 		assertEquals(size, transactions.size(), "Only items in BLOCKING state should have been deleted");
-	}
-
-	@Test
-	@DisplayName("Action on items items in success or in error with different time")
-	void deleteOkState() {
-		final int size = 500;
-		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.OK);
-		given(retentionCFG.getQueryLimit()).willReturn(size);
-
-		log.info(" START DATA PREPARATION... ");
-		transactionsPreparationItems(size, true, getHoursAfterInsertion() + 1);
-		transactionsPreparationItems(size, false, getHoursAfterInsertion() + 1);
-		
-		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
-		assumeTrue(transactions.size() == size*2, "Transactions should be inserted before testing the deletion");
-
-		List<Document> data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
-		assumeTrue(data.size() == size*2, "Data should be inserted before testing the deletion.");
-		retentionScheduler.run();
-
-		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
-		assertEquals(size, transactions.size(), "Only items in BLOCKING state should have been deleted");
-
-		transactions.forEach(transaction -> assertEquals(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, transaction.getEventStatus(), "All remaining items should have be in error"));
-
-		data = dataTemplate.find(new Query(), Document.class, DATA_COLLECTION);
-		assertEquals(size, data.size(), "Only half of data should have been deleted");
 	}
 
 	void transactionsPreparationItems(final int size, final boolean isSuccessful, final int hoursAfterInsertion) {
 		
 		Date oldDate = DateUtility.getDateCondition(hoursAfterInsertion);
 
-		List<Document> data = new ArrayList<>();
+		List<IniEdsInvocationETY> data = new ArrayList<>();
 		List<TransactionEventsETY> dataList = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
 			TransactionEventsETY transaction = new TransactionEventsETY();
 			final String id = UUID.randomUUID().toString();
-			data.add(new Document().append("workflow_instance_id", id));
+
+			IniEdsInvocationETY item = new IniEdsInvocationETY();
+			item.setWorkflowInstanceId(id);
+			data.add(item);
+
 			transaction.setWorkflowInstanceId(id);
+			transaction.setEventType(Constants.FINAL_STATUS);
 			transaction.setEventDate(oldDate);
 			transaction.setExpiringDate(oldDate);
-			transaction.setEventStatus(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS);
+
+			if (isSuccessful) {
+				transaction.setEventStatus(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS);
+			} else {
+				transaction.setEventStatus("BLOCKING_ERROR");
+			}
 			dataList.add(transaction);
 		}
 
 		transactionTemplate.insertAll(dataList);
-		dataTemplate.insert(data, DATA_COLLECTION);
+		dataTemplate.insertAll(data);
 	}
 }
