@@ -52,7 +52,7 @@ public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 
 		try {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("deleted").is(true).and("creationDate").lt(dateToRemove));
+			query.addCriteria(Criteria.where("deleted").is(true).and("creation_date").lt(dateToRemove));
 
 			DeleteResult dRes = mongoTemplate.remove(query, DictionaryETY.class);
 			cfgItemsDeleted = (int)dRes.getDeletedCount();
