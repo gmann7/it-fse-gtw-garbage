@@ -26,9 +26,6 @@ public class ValidatedDocumentsETY {
 	@Field(name = "w_id")
 	private String workflowInstanceId; 
 	
-	@Field(name = "pkey_xslt")
-	private String primaryKeyXSLT; 
-	
 	@Field(name = "pkey_transform")
 	private String primaryKeyTransform; 
 	
