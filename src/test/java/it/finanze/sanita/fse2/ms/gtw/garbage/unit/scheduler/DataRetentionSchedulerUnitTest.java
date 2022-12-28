@@ -3,9 +3,7 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.unit.scheduler;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -14,6 +12,11 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -21,12 +24,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.mongodb.MongoException;
+import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.*;
+import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.CFGItemsRetentionScheduler;
+import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.ValidatedDocumentRetentionScheduler;
+import org.bson.Document;
+import org.bson.types.Binary;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -34,6 +46,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -50,12 +63,12 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.client.impl.ConfigItemsClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.IniEdsInvocationETY;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.TransactionEventsETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.xml.validation.Schema;
 
 /**
  *
@@ -74,12 +87,26 @@ class DataRetentionSchedulerUnitTest {
 	DataRetentionScheduler retentionScheduler;
 
 	@Autowired
+	CFGItemsRetentionScheduler cfgItemsRetentionScheduler;
+	
+	@Autowired
+	ValidatedDocumentRetentionScheduler validatedDocumentRetentionScheduler;
+
+	@SpyBean
 	@Qualifier("mongo-template-data")
 	MongoTemplate dataTemplate;	
 	
-	@Autowired
+	@SpyBean
 	@Qualifier("mongo-template-transaction")
 	MongoTemplate transactionTemplate;
+
+	@SpyBean
+	@Qualifier("mongo-template-rules")
+	MongoTemplate rulesTemplate;
+
+	@SpyBean
+	@Qualifier("mongo-template-valdoc")
+	MongoTemplate valdocTemplate;
 
 	@MockBean
 	RetentionCFG retentionCFG;
@@ -91,6 +118,12 @@ class DataRetentionSchedulerUnitTest {
 	void setup() {
 		dataTemplate.dropCollection(IniEdsInvocationETY.class);
 		dataTemplate.dropCollection(TransactionEventsETY.class);
+		rulesTemplate.dropCollection(SchemaETY.class);
+		rulesTemplate.dropCollection(SchematronETY.class);
+		rulesTemplate.dropCollection(TerminologyETY.class);
+		rulesTemplate.dropCollection(DictionaryETY.class);
+		rulesTemplate.dropCollection(TransformETY.class);
+		valdocTemplate.dropCollection(ValidatedDocumentsETY.class);
 	}
 	
 	@ParameterizedTest
@@ -98,10 +131,9 @@ class DataRetentionSchedulerUnitTest {
 	@ValueSource(ints = {5000, 15000, 100000})
 	void runDeleteTransactions(final int size) {
 		
-		mockConfigurationItems(0, 0, HttpStatus.OK);
+		mockConfigurationItems(0, 0, HttpStatus.OK, RetentionCase.SUCCESS);
 		given(retentionCFG.getQueryLimit()).willReturn(size);
 
-		log.info(" START DATA PREPARATION... ");
 		transactionsPreparationItems(size, false, getHoursAfterInsertion());
 		
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
@@ -118,10 +150,77 @@ class DataRetentionSchedulerUnitTest {
 		assertTrue(CollectionUtils.isEmpty(data));
 	}
 
-	private void mockConfigurationItems(final Integer success, final Integer error, final HttpStatus status) {
+	@ParameterizedTest
+	@DisplayName("Deletion of transactions - database error")
+	@ValueSource(ints = {50})
+	void deleteTransactionsDatabaseError(final int size) {
+
+		mockConfigurationItems(0, 0, HttpStatus.OK, RetentionCase.SUCCESS);
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+
+		transactionsPreparationItems(size, false, getHoursAfterInsertion());
+
+		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
+
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
+
+		doThrow(MongoException.class).when(transactionTemplate).remove(any(Query.class), eq(TransactionEventsETY.class));
+		assertDoesNotThrow(() -> retentionScheduler.run());
+
+		transactions = transactionTemplate.findAll(TransactionEventsETY.class);
+		assertFalse(CollectionUtils.isEmpty(transactions), "No transaction should have been deleted");
+
+		data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assertFalse(CollectionUtils.isEmpty(data), "No data should have been deleted");
+	}
+
+	@ParameterizedTest
+	@DisplayName("Deletion of transactions and data - database error on data")
+	@ValueSource(ints = {50})
+	void deleteDataDatabaseError(final int size) {
+
+		mockConfigurationItems(0, 0, HttpStatus.OK, RetentionCase.SUCCESS);
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+
+		transactionsPreparationItems(size, false, getHoursAfterInsertion());
+
+		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
+
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
+
+		doThrow(MongoException.class).when(dataTemplate).remove(any(Query.class), eq(IniEdsInvocationETY.class));
+		assertDoesNotThrow(() -> retentionScheduler.run());
+
+		transactions = transactionTemplate.findAll(TransactionEventsETY.class);
+		assertTrue(CollectionUtils.isEmpty(transactions), "Transactions should have been deleted");
+
+		data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assertFalse(CollectionUtils.isEmpty(data), "No data should have been deleted");
+	}
+
+	private void mockConfigurationItems(final Integer success, final Integer error, final HttpStatus status, RetentionCase retentionCase) {
 		List<ConfigItemETY> items = new ArrayList<>();
 		Map<String, String> configItems = new HashMap<>();
-		configItems.put(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
+		switch (retentionCase) {
+			case CONFIG_ITEMS:
+				configItems.put(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY, String.valueOf(success));
+				break;
+			case VAL_DOCS:
+				configItems.put(Constants.ConfigItems.VALIDATED_DOCUMENT_RETENTION_DAY, String.valueOf(success));
+				break;
+			case SUCCESS:
+				configItems.put(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
+				break;
+			default:
+				configItems.put(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY, String.valueOf(success));
+				configItems.put(Constants.ConfigItems.VALIDATED_DOCUMENT_RETENTION_DAY, String.valueOf(success));
+				configItems.put(Constants.ConfigItems.SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
+				break;
+		}
 		items.add(new ConfigItemETY("GARBAGE", configItems));
 
 		ConfigItemsClient.ConfigItemDTO configItemDTO = new ConfigItemsClient.ConfigItemDTO();
@@ -148,17 +247,15 @@ class DataRetentionSchedulerUnitTest {
 					eq(ConfigItemsClient.ConfigItemDTO.class)
 			);
 		}
-
 	}
 
 	@Test
 	@DisplayName("Error test if config items client not available")
 	void errorTest() {
 		final int size = 500;
-		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.BAD_REQUEST);
+		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.BAD_REQUEST, RetentionCase.SUCCESS);
 		given(retentionCFG.getQueryLimit()).willReturn(size);
 
-		log.info(" START DATA PREPARATION... ");
 		transactionsPreparationItems(size, true, getHoursAfterInsertion());
 
 		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
@@ -168,7 +265,7 @@ class DataRetentionSchedulerUnitTest {
 		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
 		assertDoesNotThrow(() -> retentionScheduler.run());
 
-		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.INTERNAL_SERVER_ERROR);
+		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.INTERNAL_SERVER_ERROR, RetentionCase.SUCCESS);
 		assertDoesNotThrow(() -> retentionScheduler.run());
 	}
 
@@ -176,10 +273,9 @@ class DataRetentionSchedulerUnitTest {
 	@DisplayName("Action only over items that passed threshold, no action on others")
 	void multipleItems() {
 		final int size = 500;
-		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.OK);
+		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.OK, RetentionCase.SUCCESS);
 		given(retentionCFG.getQueryLimit()).willReturn(size);
 
-		log.info(" START DATA PREPARATION... ");
 		transactionsPreparationItems(size, false, getHoursAfterInsertion());
 		transactionsPreparationItems(size, false, getHoursAfterInsertion() + 2); // Oldest, ones to be deleted
 		
@@ -198,10 +294,9 @@ class DataRetentionSchedulerUnitTest {
 	@DisplayName("Action on items items in success or in error with different time")
 	void multipleItemStates() {
 		final int size = 500;
-		mockConfigurationItems(getHoursAfterInsertion() + 1, getHoursAfterInsertion(), HttpStatus.OK);
+		mockConfigurationItems(getHoursAfterInsertion() + 1, getHoursAfterInsertion(), HttpStatus.OK, RetentionCase.SUCCESS);
 		given(retentionCFG.getQueryLimit()).willReturn(size);
 
-		log.info(" START DATA PREPARATION... ");
 		transactionsPreparationItems(size, true, getHoursAfterInsertion() + 2);
 		transactionsPreparationItems(size, false, getHoursAfterInsertion() + 1);
 		
@@ -245,5 +340,286 @@ class DataRetentionSchedulerUnitTest {
 
 		transactionTemplate.insertAll(dataList);
 		dataTemplate.insertAll(data);
+	}
+
+	void cfgItemsPreparation(final int size, final int daysAfterInsertion) {
+		Date oldDate = Date.from(LocalDateTime.of(LocalDate.now().minusDays(daysAfterInsertion+1), LocalTime.MIN).toInstant(ZoneOffset.UTC));
+
+		List<Document> schemas = new ArrayList<>();
+		List<Document> schematron = new ArrayList<>();
+		List<Document> terminologies = new ArrayList<>();
+		List<Document> dictionaries = new ArrayList<>();
+		List<Document> transforms = new ArrayList<>();
+
+		for (int i = 0; i < size; i++) {
+			Document schemaETY = new Document();
+			schemaETY.put("_id", new ObjectId());
+			schemaETY.put("last_update_date", oldDate);
+			schemaETY.put("deleted", true);
+
+			Document schematronETY = new Document();
+			schematronETY.put("_id", new ObjectId());
+			schematronETY.put("last_update_date", oldDate);
+			schematronETY.put("deleted", true);
+
+			Document terminologyETY = new Document();
+			terminologyETY.put("_id", new ObjectId());
+			terminologyETY.put("last_update_date", oldDate);
+			terminologyETY.put("deleted", true);
+
+			Document dictionaryETY = new Document();
+			dictionaryETY.put("_id", new ObjectId());
+			dictionaryETY.put("creation_date", oldDate);
+			dictionaryETY.put("deleted", true);
+
+			Document transformETY = new Document();
+			transformETY.put("_id", new ObjectId());
+			transformETY.put("last_update_date", oldDate);
+			transformETY.put("deleted", true);
+
+			schemas.add(schemaETY);
+			schematron.add(schematronETY);
+			terminologies.add(terminologyETY);
+			dictionaries.add(dictionaryETY);
+			transforms.add(transformETY);
+		}
+
+		rulesTemplate.insert(schemas, rulesTemplate.getCollectionName(SchemaETY.class));
+		rulesTemplate.insert(schematron, rulesTemplate.getCollectionName(SchematronETY.class));
+		rulesTemplate.insert(terminologies, rulesTemplate.getCollectionName(TerminologyETY.class));
+		rulesTemplate.insert(dictionaries, rulesTemplate.getCollectionName(DictionaryETY.class));
+		rulesTemplate.insert(transforms, rulesTemplate.getCollectionName(TransformETY.class));
+	}
+
+	@Test
+	@DisplayName("Action only on items that passed threshold")
+	void noDeletion() {
+		final int size = 500;
+		mockConfigurationItems(getHoursAfterInsertion() + 1, 0, HttpStatus.OK, RetentionCase.SUCCESS);
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+
+		transactionsPreparationItems(size, true, getHoursAfterInsertion());
+
+		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		assumeTrue(!CollectionUtils.isEmpty(transactions), "Transactions should be inserted before testing the deletion");
+
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assumeTrue(!CollectionUtils.isEmpty(data), "Data should be inserted before testing the deletion.");
+		retentionScheduler.run();
+
+		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		assertEquals(0, transactions.size(), "No item should have been deleted");
+	}
+
+	@Test
+	@DisplayName("Action on items items in success or in error with different time")
+	void deleteOkState() {
+		final int size = 500;
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.OK, RetentionCase.SUCCESS);
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+
+		transactionsPreparationItems(size, true, getHoursAfterInsertion() + 1);
+		transactionsPreparationItems(size, false, getHoursAfterInsertion() + 1);
+
+		List<TransactionEventsETY> transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		assumeTrue(transactions.size() == size*2, "Transactions should be inserted before testing the deletion");
+
+		List<IniEdsInvocationETY> data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assumeTrue(data.size() == size*2, "Data should be inserted before testing the deletion.");
+		retentionScheduler.run();
+
+		transactions = transactionTemplate.find(new Query(), TransactionEventsETY.class);
+		assertEquals(size, transactions.size(), "Only items in SUCCESS state should have been deleted");
+
+		transactions.forEach(transaction -> assertEquals("BLOCKING_ERROR", transaction.getEventStatus(), "All remaining items should have be in error"));
+
+		data = dataTemplate.find(new Query(), IniEdsInvocationETY.class);
+		assertEquals(size, data.size(), "Only half of data should have been deleted");
+	}
+
+	@ParameterizedTest
+	@DisplayName("Deletion of configuration items")
+	@ValueSource(ints = {10, 50, 100})
+	void runDeleteConfigurationItems(final int size) {
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
+		cfgItemsPreparation(size, getHoursAfterInsertion());
+
+		List<SchemaETY> schemas = rulesTemplate.find(new Query(), SchemaETY.class);
+		List<SchematronETY> schematron = rulesTemplate.find(new Query(), SchematronETY.class);
+		List<TerminologyETY> terminologies = rulesTemplate.find(new Query(), TerminologyETY.class);
+		List<DictionaryETY> dictionaries = rulesTemplate.find(new Query(), DictionaryETY.class);
+		List<TransformETY> transforms = rulesTemplate.find(new Query(), TransformETY.class);
+
+		List<SchemaETY> finalSchemas = schemas;
+		List<SchematronETY> finalSchematron = schematron;
+		List<TerminologyETY> finalTerminologies = terminologies;
+		List<DictionaryETY> finalDictionaries = dictionaries;
+		List<TransformETY> finalTransforms = transforms;
+
+		assertAll(
+				() -> assertFalse(CollectionUtils.isEmpty(finalSchemas), "schemas should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(finalSchematron), "schematron should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(finalTerminologies), "terminologies should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(finalDictionaries), "dictionaries should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(finalTransforms), "transforms should be inserted before testing the deletion")
+		);
+
+		cfgItemsRetentionScheduler.run();
+
+		schemas = rulesTemplate.findAll(SchemaETY.class);
+		schematron = rulesTemplate.findAll(SchematronETY.class);
+		terminologies = rulesTemplate.findAll(TerminologyETY.class);
+		dictionaries = rulesTemplate.findAll(DictionaryETY.class);
+		transforms = rulesTemplate.findAll(TransformETY.class);
+
+		assertTrue(CollectionUtils.isEmpty(schemas));
+		assertTrue(CollectionUtils.isEmpty(schematron));
+		assertTrue(CollectionUtils.isEmpty(terminologies));
+		assertTrue(CollectionUtils.isEmpty(dictionaries));
+		assertTrue(CollectionUtils.isEmpty(transforms));
+	}
+
+	@ParameterizedTest
+	@DisplayName("Deletion of configuration items error for database exception")
+	@ValueSource(ints = {10})
+	void cfgItemsDeleteDatabaseError(final int size) {
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
+		cfgItemsPreparation(size, getHoursAfterInsertion());
+
+		List<SchemaETY> schemas = rulesTemplate.find(new Query(), SchemaETY.class);
+		List<SchematronETY> schematron = rulesTemplate.find(new Query(), SchematronETY.class);
+		List<TerminologyETY> terminologies = rulesTemplate.find(new Query(), TerminologyETY.class);
+		List<DictionaryETY> dictionaries = rulesTemplate.find(new Query(), DictionaryETY.class);
+		List<TransformETY> transforms = rulesTemplate.find(new Query(), TransformETY.class);
+
+		assertAll(
+				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion")
+		);
+
+		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(SchemaETY.class));
+		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(SchematronETY.class));
+		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(TerminologyETY.class));
+		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(TransformETY.class));
+		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(DictionaryETY.class));
+
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+
+		assertAll(
+				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be still full because database failed"),
+				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be still full because database failed"),
+				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be still full because database failed"),
+				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be still full because database failed"),
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be still full because database failed")
+		);
+	}
+
+	@Test
+	@DisplayName("Error test if config items client throws an HttpClientError")
+	void errorConfigItemsClient() {
+		int size = 10;
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.BAD_REQUEST, RetentionCase.CONFIG_ITEMS);
+		cfgItemsPreparation(size, getHoursAfterInsertion());
+
+		List<SchemaETY> schemas = rulesTemplate.find(new Query(), SchemaETY.class);
+		List<SchematronETY> schematron = rulesTemplate.find(new Query(), SchematronETY.class);
+		List<TerminologyETY> terminologies = rulesTemplate.find(new Query(), TerminologyETY.class);
+		List<DictionaryETY> dictionaries = rulesTemplate.find(new Query(), DictionaryETY.class);
+		List<TransformETY> transforms = rulesTemplate.find(new Query(), TransformETY.class);
+
+		assertAll(
+				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion")
+		);
+
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+	}
+
+	@Test
+	@DisplayName("Error test if config items client throws a Generic Exception")
+	void errorConfigItemsGenericException() {
+		int size = 10;
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.INTERNAL_SERVER_ERROR, RetentionCase.CONFIG_ITEMS);
+		cfgItemsPreparation(size, getHoursAfterInsertion());
+
+		List<SchemaETY> schemas = rulesTemplate.find(new Query(), SchemaETY.class);
+		List<SchematronETY> schematron = rulesTemplate.find(new Query(), SchematronETY.class);
+		List<TerminologyETY> terminologies = rulesTemplate.find(new Query(), TerminologyETY.class);
+		List<DictionaryETY> dictionaries = rulesTemplate.find(new Query(), DictionaryETY.class);
+		List<TransformETY> transforms = rulesTemplate.find(new Query(), TransformETY.class);
+
+		assertAll(
+				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be inserted before testing the deletion"),
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion")
+		);
+
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+	}
+
+	@ParameterizedTest
+	@DisplayName("Deletion of validated documents")
+	@ValueSource(ints = {10, 50, 100})
+	void runDeleteValidatedDocuments(final int size) {
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.OK, RetentionCase.VAL_DOCS);
+		valdocPreparation(size, getHoursAfterInsertion());
+
+		List<ValidatedDocumentsETY> validatedDocuments = valdocTemplate.find(new Query(), ValidatedDocumentsETY.class);
+		List<ValidatedDocumentsETY> finalValDocs = validatedDocuments;
+
+		assertFalse(CollectionUtils.isEmpty(finalValDocs), "valdocs should be inserted before testing the deletion");
+		validatedDocumentRetentionScheduler.run();
+		validatedDocuments = valdocTemplate.findAll(ValidatedDocumentsETY.class);
+		assertTrue(CollectionUtils.isEmpty(validatedDocuments));
+	}
+
+	@ParameterizedTest
+	@DisplayName("Deletion of validated documents")
+	@ValueSource(ints = {10})
+	void valdocDeleteDatabaseError(final int size) {
+		given(retentionCFG.getQueryLimit()).willReturn(size);
+		mockConfigurationItems(getHoursAfterInsertion(), getHoursAfterInsertion()* 2, HttpStatus.OK, RetentionCase.VAL_DOCS);
+		valdocPreparation(size, getHoursAfterInsertion());
+
+		List<ValidatedDocumentsETY> validatedDocuments = valdocTemplate.find(new Query(), ValidatedDocumentsETY.class);
+		List<ValidatedDocumentsETY> finalValDocs = validatedDocuments;
+
+		assertFalse(CollectionUtils.isEmpty(finalValDocs), "valdocs should be inserted before testing the deletion");
+
+		doThrow(MongoException.class).when(valdocTemplate).findAllAndRemove(any(Query.class), eq(ValidatedDocumentsETY.class));
+
+		assertDoesNotThrow(() -> validatedDocumentRetentionScheduler.run());
+
+		validatedDocuments = valdocTemplate.findAll(ValidatedDocumentsETY.class);
+		assertFalse(CollectionUtils.isEmpty(validatedDocuments));
+	}
+
+	private void valdocPreparation(int size, int daysAfterInsertion) {
+		Date oldDate = Date.from(LocalDateTime.of(LocalDate.now().minusDays(daysAfterInsertion+1), LocalTime.MIN).toInstant(ZoneOffset.UTC));
+
+		List<ValidatedDocumentsETY> validatedDocuments = new ArrayList<>();
+
+		for (int i = 0; i < size; i++) {
+			ValidatedDocumentsETY validatedDocumentsETY = new ValidatedDocumentsETY();
+			validatedDocumentsETY.setId(new ObjectId().toString());
+			validatedDocumentsETY.setWorkflowInstanceId(UUID.randomUUID().toString());
+			validatedDocumentsETY.setInsertionDate(oldDate);
+			validatedDocuments.add(validatedDocumentsETY);
+		}
+
+		valdocTemplate.insertAll(validatedDocuments);
 	}
 }

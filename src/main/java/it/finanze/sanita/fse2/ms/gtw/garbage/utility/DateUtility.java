@@ -42,12 +42,12 @@ public class DateUtility {
 
 	/**
 	 * 
-	 * @param docDate   date of document
-	 * @param daysLimit limit of days, after these documents is to delete
+	 * @param dateToCompare   date of document
+	 * @param maxDaysToValidation limit of days, after these documents is to delete
 	 * @return boolean value, True to delete or False not to delete
 	 * 
 	 */
-	public static boolean dateOlderThan(String dateToCompare, int maxDaysToValidation) throws Exception {
+	public static boolean dateOlderThan(String dateToCompare, int maxDaysToValidation) {
 		boolean output = false;
 		try {
 			DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd");

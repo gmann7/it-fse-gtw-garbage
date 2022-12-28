@@ -29,10 +29,10 @@ public class CfgItemsRetentionSRV implements ICfgItemsRetentionRepoSRV {
 	private static final long serialVersionUID = -667918997674784439L;
 
 	@Autowired
-	private ICfgItemsRetentionRepo rulesRepo;
+	private transient ICfgItemsRetentionRepo rulesRepo;
 
 	@Autowired
-	private IConfigItemsClient configClient;
+	private transient IConfigItemsClient configClient;
  
 	@Override
 	public void deleteCFGItems(final int day) {

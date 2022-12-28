@@ -13,7 +13,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ResponseDTO extends AbstractDTO {
+public class ResponseDTO {
 
 	/**
 	 * Trace id log.

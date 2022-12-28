@@ -24,6 +24,8 @@ import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.mongo.MongoLockProvider;
 
+import javax.validation.constraints.NotNull;
+
 @Configuration
 public class MongoDatabaseCFG {
 
@@ -65,13 +67,7 @@ public class MongoDatabaseCFG {
 	@Qualifier("mongo-template-data")
 	public MongoTemplate mongoTemplateData() {
 		final MongoDatabaseFactory factory = mongoDatabaseFactoryData();
-		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
-		mongoMappingContext.setApplicationContext(appContext);
-
-		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
-				mongoMappingContext);
-		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-		return new MongoTemplate(factory, converter);
+		return getMongoTemplate(factory);
 	}
 
 	@Bean
@@ -79,26 +75,14 @@ public class MongoDatabaseCFG {
 	@Qualifier("mongo-template-transaction")
 	public MongoTemplate mongoTemplateTransactions() {
 		final MongoDatabaseFactory factory = mongoDatabaseFactoryTransactions();
-		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
-		mongoMappingContext.setApplicationContext(appContext);
-
-		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
-				mongoMappingContext);
-		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-		return new MongoTemplate(factory, converter);
+		return getMongoTemplate(factory);
 	}
 
 	@Bean
 	@Qualifier("mongo-template-valdoc")
 	public MongoTemplate mongoTemplateFse() {
 		final MongoDatabaseFactory factory = mongoDatabaseFactoryFse();
-		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
-		mongoMappingContext.setApplicationContext(appContext);
-
-		MappingMongoConverter converter = new MappingMongoConverter(new DefaultDbRefResolver(factory),
-				mongoMappingContext);
-		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-		return new MongoTemplate(factory, converter);
+		return getMongoTemplate(factory);
 	}
 
 	@Bean
@@ -110,7 +94,12 @@ public class MongoDatabaseCFG {
 	@Bean
 	@Qualifier("mongo-template-rules")
 	public MongoTemplate mongoTemplateRules() {
-		final MongoDatabaseFactory factory = mongoDatabaseFactoryFse();
+		final MongoDatabaseFactory factory = mongoDatabaseFactoryRules();
+		return getMongoTemplate(factory);
+	}
+
+	@NotNull
+	private MongoTemplate getMongoTemplate(MongoDatabaseFactory factory) {
 		final MongoMappingContext mongoMappingContext = new MongoMappingContext();
 		mongoMappingContext.setApplicationContext(appContext);
 
@@ -119,7 +108,7 @@ public class MongoDatabaseCFG {
 		converter.setTypeMapper(new DefaultMongoTypeMapper(null));
 		return new MongoTemplate(factory, converter);
 	}
-	
+
 	@Bean
 	public LockProvider lockProvider(MongoTemplate template) {
 		return new MongoLockProvider(template.getDb());

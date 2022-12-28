@@ -3,20 +3,10 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.service;
 
-import java.util.List;
-
 /**
  *
  */
 public interface IDataRetentionSRV {
-
-	/**
-	 * Metodo che determina le regole di retention e le applica eliminando dati sul
-	 * gtw-data-db.
-	 * 
-	 * @return Integer numero di record eliminati.
-	 */
-	Integer deleteOnDataDB(final List<String> idsToDelete);
 
 	/**
 	 * Metodo che determina le regole di retention e le applica eliminando dati sul

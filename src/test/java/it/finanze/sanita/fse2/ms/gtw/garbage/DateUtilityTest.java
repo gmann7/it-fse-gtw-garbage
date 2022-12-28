@@ -3,8 +3,6 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -19,6 +17,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = { DateUtility.class })
 @ExtendWith(SpringExtension.class)
@@ -44,8 +44,8 @@ class DateUtilityTest {
 		calFalse.add(Calendar.DAY_OF_MONTH, -1);
 		String falseString = sdf.format(calFalse.getTime());
 
-		assertEquals(true, DateUtility.dateOlderThan(trueString, x));
-		assertEquals(false, DateUtility.dateOlderThan(falseString, y));
+		assertTrue(DateUtility.dateOlderThan(trueString, x));
+		assertFalse(DateUtility.dateOlderThan(falseString, y));
 
 	}
 

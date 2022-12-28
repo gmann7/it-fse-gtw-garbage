@@ -3,26 +3,23 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.bson.Document;
-import org.bson.types.ObjectId;
+import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
+import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.ValidatedDocumentsETY;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
-import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.ValidatedDocumentsETY;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Repository
@@ -41,29 +38,6 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 	private transient RetentionCFG retentionCfg;
 
 	@Override
-	public int deleteOldValidatedDocument(final List<ObjectId> idsToRemove) {
-		Long output = null;
-
-		try {
-			Document query = new Document();
-
-			query.append("_id", new Document("$in", idsToRemove));
-
-			String targetCollection = Constants.Collections.VALIDATED_DOCUMENTS;
-			targetCollection = Constants.Profile.TEST_PREFIX + targetCollection;
-
-			output = mongoTemplate.getCollection(targetCollection).deleteMany(query).getDeletedCount();
-
-		} catch (Exception e) {
-			log.error("Errore nel tentativo di eliminare la lista di ids nella collection 'validated_documents': ", e);
-			throw new BusinessException(
-					"Errore nel tentativo di eliminare la lista di ids nella collection 'validated_documents': ", e);
-		}
-
-		return output.intValue();
-	}
-
-	@Override
 	public List<String> deleteValidatedDocuments(final Date oldToRemove) {
 		List<String> output = new ArrayList<>();
 		try {
@@ -73,8 +47,8 @@ public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 			query.limit(retentionCfg.getQueryLimit());
 
 			List<ValidatedDocumentsETY> validatedDocuments = mongoTemplate.findAllAndRemove(query, ValidatedDocumentsETY.class);
-			if(validatedDocuments!=null) {
-				output = validatedDocuments.stream().map(e->e.getWorkflowInstanceId()).collect(Collectors.toList());
+			if (!CollectionUtils.isEmpty(validatedDocuments)) {
+				output = validatedDocuments.stream().map(ValidatedDocumentsETY::getWorkflowInstanceId).collect(Collectors.toList());
 			}
 
 		} catch (Exception e) {
