@@ -5,10 +5,11 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.repository.impl;
 
 import java.util.Date;
 
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.EngineETY;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +19,10 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.ICfgItemsRetentionRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.DictionaryETY;
 import lombok.extern.slf4j.Slf4j;
+
+import static it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.EngineETY.FIELD_LAST_SYNC;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.EngineETY.MIN_ENGINE_AVAILABLE;
+import static org.springframework.data.mongodb.core.query.Criteria.*;
 
 @Slf4j
 @Repository
@@ -35,7 +40,7 @@ public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 
 		try {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("deleted").is(true).and("last_update_date").lt(dateToRemove));
+			query.addCriteria(where("deleted").is(true).and("last_update_date").lt(dateToRemove));
 
 			DeleteResult dRes = mongoTemplate.remove(query, clazz);
 			cfgItemsDeleted = (int)dRes.getDeletedCount();
@@ -52,7 +57,7 @@ public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 
 		try {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("deleted").is(true).and("creation_date").lt(dateToRemove));
+			query.addCriteria(where("deleted").is(true).and("creation_date").lt(dateToRemove));
 
 			DeleteResult dRes = mongoTemplate.remove(query, DictionaryETY.class);
 			cfgItemsDeleted = (int)dRes.getDeletedCount();
@@ -63,6 +68,32 @@ public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 		return cfgItemsDeleted;
 	}
 
-	
+	@Override
+	public Integer deleteEngines(Date dateToRemove) {
+		int engines = 0;
+
+		// Retrieve all expired engines,
+		// sort by last_sync then skip the latest one
+		Query q = new Query(
+			where(EngineETY.FIELD_LAST_SYNC).lt(dateToRemove)
+		).with(Sort.by(Sort.Direction.DESC, FIELD_LAST_SYNC)
+		).skip(MIN_ENGINE_AVAILABLE);
+
+		try {
+
+			long size = mongoTemplate.count(new Query(), EngineETY.class);
+			// More than one engine
+			if(size > MIN_ENGINE_AVAILABLE) {
+				DeleteResult res = mongoTemplate.remove(q, EngineETY.class);
+				engines = (int) res.getDeletedCount();
+			}
+		} catch (Exception e) {
+			log.error("Error while perform delete engines" , e);
+			throw new BusinessException("Error while perform delete engines" , e);
+		}
+
+		return engines;
+	}
+
 
 }

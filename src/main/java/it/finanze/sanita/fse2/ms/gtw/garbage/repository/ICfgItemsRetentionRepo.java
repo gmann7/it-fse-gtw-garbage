@@ -10,4 +10,6 @@ public interface ICfgItemsRetentionRepo {
 	Integer deleteCfgItems(Date dateToRemove, Class<?> clazz);
 	
 	Integer deleteTerminology(Date dateToRemove);
+
+	Integer deleteEngines(Date dateToRemove);
 }
