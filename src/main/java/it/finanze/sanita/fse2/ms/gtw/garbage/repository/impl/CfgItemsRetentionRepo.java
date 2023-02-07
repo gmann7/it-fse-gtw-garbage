@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import static it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.EngineETY.FIELD_LAST_SYNC;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.EngineETY.MIN_ENGINE_AVAILABLE;
+import static org.springframework.data.domain.Sort.Direction.*;
 import static org.springframework.data.mongodb.core.query.Criteria.*;
 
 @Slf4j
@@ -70,22 +71,41 @@ public class CfgItemsRetentionRepo implements ICfgItemsRetentionRepo {
 
 	@Override
 	public Integer deleteEngines(Date dateToRemove) {
+
+		// Cases:
+		// [1] If one engine available, do nothing
+		// [2] If multiple engines but all expired, leave the most recent
+		// [3] If no engine expired, do nothing
+		// [4] If some engines expired and some aren't, remove the expired ones
+
 		int engines = 0;
 
-		// Retrieve all expired engines,
-		// sort by last_sync then skip the latest one
+		// Retrieve all expired engines, sort by last_sync
 		Query q = new Query(
 			where(EngineETY.FIELD_LAST_SYNC).lt(dateToRemove)
-		).with(Sort.by(Sort.Direction.DESC, FIELD_LAST_SYNC)
-		).skip(MIN_ENGINE_AVAILABLE);
+		).with(Sort.by(DESC, FIELD_LAST_SYNC));
 
 		try {
-
+			DeleteResult res;
+			// Verify how many engines we got
+			// We always want to keep at least one engine
 			long size = mongoTemplate.count(new Query(), EngineETY.class);
-			// More than one engine
+			// If we have more than one engine
 			if(size > MIN_ENGINE_AVAILABLE) {
-				DeleteResult res = mongoTemplate.remove(q, EngineETY.class);
-				engines = (int) res.getDeletedCount();
+				// Count the expired engines
+				long expired = mongoTemplate.count(q, EngineETY.class);
+				// Do not perform queries if no engine expired
+				if(expired > 0) {
+					if(expired == size) {
+						// If all engines are expired, remove everything but keep the most recent
+						res = mongoTemplate.remove(q.skip(MIN_ENGINE_AVAILABLE), EngineETY.class);
+					} else {
+						// Otherwise remove only the expired ones
+						res = mongoTemplate.remove(q, EngineETY.class);
+					}
+					// Save the delete count
+					engines = (int) res.getDeletedCount();
+				}
 			}
 		} catch (Exception e) {
 			log.error("Error while perform delete engines" , e);
