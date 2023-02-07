@@ -28,6 +28,8 @@ public final class Constants {
 			public static final String TERMINOLOGY = "terminology";
 			
 			public static final String DICTIONARY = "dictionary";
+
+			public static final String ENGINES = "engines";
 			
 
 		private Collections() {
