@@ -69,6 +69,9 @@ class DataRetentionSchedulerUnitTest {
 	@Getter
 	static final int hoursAfterInsertion = 120;
 
+	@Getter
+	static final int daysAfterInsertion = 5;
+
 	@Autowired
 	DataRetentionScheduler retentionScheduler;
 
@@ -629,5 +632,69 @@ class DataRetentionSchedulerUnitTest {
 		}
 
 		valdocTemplate.insertAll(validatedDocuments);
+	}
+
+	@Test
+	@DisplayName("Do not remove any engine (none available)")
+	void emptyEngines() {
+		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
+		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
+		List<EngineETY> finalEngines = engines;
+		assertTrue(CollectionUtils.isEmpty(finalEngines), "engines should not be inserted before testing the empty deletion");
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+		engines = rulesTemplate.findAll(EngineETY.class);
+		assertTrue(engines.isEmpty());
+	}
+
+	@Test
+	@DisplayName("Do not remove any engine (only one available)")
+	void noEngines() {
+		final int size = 1;
+		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
+		cfgItemsPreparation(size, getDaysAfterInsertion());
+		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
+		List<EngineETY> finalEngines = engines;
+		assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion");
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+		engines = rulesTemplate.findAll(EngineETY.class);
+		assertEquals(size, engines.size());
+	}
+
+	@Test
+	@DisplayName("Do not remove any engine (none expired)")
+	void noEnginesExpired() {
+		final int size = 5;
+		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
+		cfgItemsPreparation(size, getDaysAfterInsertion() - 2);
+		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
+		List<EngineETY> finalEngines = engines;
+		assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion");
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+		engines = rulesTemplate.findAll(EngineETY.class);
+		assertEquals(size, engines.size());
+	}
+
+	@Test
+	@DisplayName("Remove expired engines (not unexpired one)")
+	void multipleEngines() {
+		final int unexpired = 5;
+		final int expired = 10;
+		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
+
+		cfgItemsPreparation(unexpired, getDaysAfterInsertion() - 2);
+		cfgItemsPreparation(expired, getDaysAfterInsertion());
+
+		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
+
+		List<EngineETY> finalEngines = engines;
+
+		assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion");
+
+		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
+
+		engines = rulesTemplate.findAll(EngineETY.class);
+
+		assertEquals(unexpired, engines.size());
+
 	}
 }
