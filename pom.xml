@@ -6,7 +6,7 @@
 	<groupId>it.finanze.sanita.fse2</groupId>
 	<artifactId>gtw-garbage-ms</artifactId>
 	<name>gtw-garbage-ms</name>
-	<version>0.2.0-RELEASE</version>
+	<version>0.3.0-RELEASE</version>
 	<description>Gateway Garbage FSE</description>
 
 	<parent>
