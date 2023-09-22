@@ -9,12 +9,13 @@
  * 
  * You should have received a copy of the GNU Affero General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
-package it.finanze.sanita.fse2.ms.gtw.garbage.repository;
+package it.finanze.sanita.fse2.ms.gtw.garbage.client;
 
 import java.util.List;
 
-public interface IDataRepo {
-	
-	int deleteIds(final List<String> ids);
-	
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
+
+public interface IConfigClient {
+
+    List<ConfigItemETY> getConfigurationItems();
 }

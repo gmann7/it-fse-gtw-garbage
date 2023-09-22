@@ -19,10 +19,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IDataRepo;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IIniEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IValidatedDocumentRetentionSRV;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
@@ -34,13 +34,12 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 
 	@Autowired
 	private IValidatedDocumentRepo valDocRepo;
-	
 
 	@Autowired
-	private IConfigItemsClient configClient;
+	private IConfigClient configClient;
 	
 	@Autowired
-	private IDataRepo dataRepo;
+	private IIniEdsInvocationRepo dataRepo;
 
 	@Override
 	public void deleteValidatedDocuments(final int day) {

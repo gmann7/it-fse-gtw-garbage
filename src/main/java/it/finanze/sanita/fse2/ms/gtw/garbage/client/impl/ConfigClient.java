@@ -24,7 +24,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.MicroservicesURLCFG;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
@@ -39,7 +39,7 @@ import lombok.extern.slf4j.Slf4j;
  */
 @Slf4j
 @Component
-public class ConfigItemsClient implements IConfigItemsClient {
+public class ConfigClient implements IConfigClient {
     
     @Autowired
     private RestTemplate restTemplate;

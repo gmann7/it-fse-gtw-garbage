@@ -18,7 +18,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.ICfgItemsRetentionRepo;
@@ -40,7 +40,7 @@ public class CfgItemsRetentionSRV implements ICfgItemsRetentionRepoSRV {
 	private transient ICfgItemsRetentionRepo rulesRepo;
 
 	@Autowired
-	private transient IConfigItemsClient configClient;
+	private transient IConfigClient configClient;
  
 	@Override
 	public void deleteCFGItems(final int day) {
@@ -70,12 +70,10 @@ public class CfgItemsRetentionSRV implements ICfgItemsRetentionRepoSRV {
 
 		try {
 			final Map<String, String> items = configClient.getConfigurationItems().get(0).getItems();
-			output.put(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY,
-					Integer.parseInt(items.get(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY)));
+			output.put(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY, Integer.parseInt(items.get(Constants.ConfigItems.CFG_ITEMS_RETENTION_DAY)));
 		} catch (Exception e) {
 			log.error("Errore durante la lettura delle configurazioni necessarie per la Data Retention. ", e);
-			throw new BusinessException(
-					"Errore durante la lettura delle configurazioni necessarie per la Data Retention. ", e);
+			throw new BusinessException("Errore durante la lettura delle configurazioni necessarie per la Data Retention. ", e);
 		}
 
 		return output;

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IDataRepo;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IIniEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.ITransactionsRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.TransactionEventsETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IDataRetentionSRV;
@@ -34,7 +34,7 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 
 
 	@Autowired
-	private IDataRepo dataRepo;
+	private IIniEdsInvocationRepo dataRepo;
 
 	@Autowired
 	private ITransactionsRepo transactionsRepo;
@@ -54,8 +54,7 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 			}
 		} catch (Exception e) {
 			log.error("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
-			throw new BusinessException(
-					"Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
+			throw new BusinessException("Errore durante esecuzione Engine Data Retention per il contenuto di 'transaction_data': ", e);
 		}
 
 	}

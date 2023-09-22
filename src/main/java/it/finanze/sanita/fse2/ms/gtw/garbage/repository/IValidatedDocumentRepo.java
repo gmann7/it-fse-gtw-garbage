@@ -11,11 +11,10 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.repository;
 
-import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
-public interface IValidatedDocumentRepo extends Serializable {
+public interface IValidatedDocumentRepo {
 
 	List<String> deleteValidatedDocuments(Date oldToRemove);
 }

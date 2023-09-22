@@ -12,7 +12,7 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.unit.scheduler;
 
 import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.impl.ConfigItemsClient.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.impl.ConfigClient.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
