@@ -29,6 +29,10 @@ import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
+import com.mongodb.client.MongoClients;
+
 import net.javacrumbs.shedlock.core.LockProvider;
 import net.javacrumbs.shedlock.provider.mongo.MongoLockProvider;
 
@@ -55,19 +59,31 @@ public class MongoDatabaseCFG {
 	@Primary
 	@Qualifier("mongo-factory-data")
 	public MongoDatabaseFactory mongoDatabaseFactoryData() {
-		return new SimpleMongoClientDatabaseFactory(mongoData.getUri());
+		ConnectionString connectionString = new ConnectionString(mongoData.getUri());
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+				.applyConnectionString(connectionString)
+				.build();
+		return new SimpleMongoClientDatabaseFactory(MongoClients.create(mongoClientSettings), mongoData.getSchemaName());
 	}
 
 	@Bean
 	@Qualifier("mongo-factory-transaction")
 	public MongoDatabaseFactory mongoDatabaseFactoryTransactions() {
-		return new SimpleMongoClientDatabaseFactory(mongoTransactions.getUri());
+		ConnectionString connectionString = new ConnectionString(mongoTransactions.getUri());
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+				.applyConnectionString(connectionString)
+				.build();
+		return new SimpleMongoClientDatabaseFactory(MongoClients.create(mongoClientSettings), mongoData.getSchemaName());
 	}
 
 	@Bean
 	@Qualifier("mongo-factory-valdoc")
 	public MongoDatabaseFactory mongoDatabaseFactoryFse() {
-		return new SimpleMongoClientDatabaseFactory(mongoFse.getUri());
+		ConnectionString connectionString = new ConnectionString(mongoFse.getUri());
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+				.applyConnectionString(connectionString)
+				.build();
+		return new SimpleMongoClientDatabaseFactory(MongoClients.create(mongoClientSettings), mongoData.getSchemaName());
 	}
 
 	@Bean
@@ -79,7 +95,7 @@ public class MongoDatabaseCFG {
 	}
 
 	@Bean
-//    @Primary
+	//    @Primary
 	@Qualifier("mongo-template-transaction")
 	public MongoTemplate mongoTemplateTransactions() {
 		final MongoDatabaseFactory factory = mongoDatabaseFactoryTransactions();
