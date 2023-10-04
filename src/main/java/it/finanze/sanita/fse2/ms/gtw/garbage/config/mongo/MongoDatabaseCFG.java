@@ -97,12 +97,23 @@ public class MongoDatabaseCFG {
 	}
 
 	@Bean
+	@Qualifier("mongo-factory-rules")
+	public MongoDatabaseFactory mongoDatabaseFactoryRules() {
+		ConnectionString connectionString = new ConnectionString(mongoFse.getUri());
+		MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
+				.applyConnectionString(connectionString)
+				.build();
+		return new SimpleMongoClientDatabaseFactory(MongoClients.create(mongoClientSettings), mongoData.getSchemaName());
+	}
+
+	@Bean
 	@Primary
 	@Qualifier("mongo-template-data")
 	public MongoTemplate mongoTemplateData() {
 		final MongoDatabaseFactory factory = mongoDatabaseFactoryData();
 		return getMongoTemplate(factory);
 	}
+
 
 	@Bean
 	@Qualifier("mongo-template-transaction")
