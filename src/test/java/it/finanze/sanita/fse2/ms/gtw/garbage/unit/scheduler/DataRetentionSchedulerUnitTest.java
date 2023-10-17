@@ -120,7 +120,6 @@ class DataRetentionSchedulerUnitTest {
 		rulesTemplate.dropCollection(TerminologyETY.class);
 		rulesTemplate.dropCollection(DictionaryETY.class);
 		rulesTemplate.dropCollection(TransformETY.class);
-		rulesTemplate.dropCollection(EngineETY.class);
 		valdocTemplate.dropCollection(ValidatedDocumentsETY.class);
 	}
 	
@@ -348,7 +347,6 @@ class DataRetentionSchedulerUnitTest {
 		List<Document> terminologies = new ArrayList<>();
 		List<Document> dictionaries = new ArrayList<>();
 		List<Document> transforms = new ArrayList<>();
-		List<Document> engines = new ArrayList<>();
 
 		for (int i = 0; i < size; i++) {
 			Document schemaETY = new Document();
@@ -376,16 +374,11 @@ class DataRetentionSchedulerUnitTest {
 			transformETY.put("last_update_date", oldDate);
 			transformETY.put("deleted", true);
 
-			Document engineETY = new Document();
-			engineETY.put("_id", new ObjectId());
-			engineETY.put("last_sync", oldDate);
-
 			schemas.add(schemaETY);
 			schematron.add(schematronETY);
 			terminologies.add(terminologyETY);
 			dictionaries.add(dictionaryETY);
 			transforms.add(transformETY);
-			engines.add(engineETY);
 		}
 
 		rulesTemplate.insert(schemas, rulesTemplate.getCollectionName(SchemaETY.class));
@@ -393,7 +386,6 @@ class DataRetentionSchedulerUnitTest {
 		rulesTemplate.insert(terminologies, rulesTemplate.getCollectionName(TerminologyETY.class));
 		rulesTemplate.insert(dictionaries, rulesTemplate.getCollectionName(DictionaryETY.class));
 		rulesTemplate.insert(transforms, rulesTemplate.getCollectionName(TransformETY.class));
-		rulesTemplate.insert(engines, rulesTemplate.getCollectionName(EngineETY.class));
 	}
 
 	@Test
@@ -455,22 +447,19 @@ class DataRetentionSchedulerUnitTest {
 		List<TerminologyETY> terminologies = rulesTemplate.findAll(TerminologyETY.class);
 		List<DictionaryETY> dictionaries = rulesTemplate.findAll(DictionaryETY.class);
 		List<TransformETY> transforms = rulesTemplate.findAll(TransformETY.class);
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
 
 		List<SchemaETY> finalSchemas = schemas;
 		List<SchematronETY> finalSchematron = schematron;
 		List<TerminologyETY> finalTerminologies = terminologies;
 		List<DictionaryETY> finalDictionaries = dictionaries;
 		List<TransformETY> finalTransforms = transforms;
-		List<EngineETY> finalEngines = engines;
 
 		assertAll(
 				() -> assertFalse(CollectionUtils.isEmpty(finalSchemas), "schemas should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(finalSchematron), "schematron should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(finalTerminologies), "terminologies should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(finalDictionaries), "dictionaries should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(finalTransforms), "transforms should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion")
+				() -> assertFalse(CollectionUtils.isEmpty(finalTransforms), "transforms should be inserted before testing the deletion")
 		);
 
 		cfgItemsRetentionScheduler.run();
@@ -480,15 +469,12 @@ class DataRetentionSchedulerUnitTest {
 		terminologies = rulesTemplate.findAll(TerminologyETY.class);
 		dictionaries = rulesTemplate.findAll(DictionaryETY.class);
 		transforms = rulesTemplate.findAll(TransformETY.class);
-		engines = rulesTemplate.findAll(EngineETY.class);
 
 		assertTrue(CollectionUtils.isEmpty(schemas));
 		assertTrue(CollectionUtils.isEmpty(schematron));
 		assertTrue(CollectionUtils.isEmpty(terminologies));
 		assertTrue(CollectionUtils.isEmpty(dictionaries));
 		assertTrue(CollectionUtils.isEmpty(transforms));
-		// One engine must always be available
-		assertTrue(CollectionUtils.hasUniqueObject(engines));
 	}
 
 	@ParameterizedTest
@@ -504,15 +490,13 @@ class DataRetentionSchedulerUnitTest {
 		List<TerminologyETY> terminologies = rulesTemplate.findAll(TerminologyETY.class);
 		List<DictionaryETY> dictionaries = rulesTemplate.findAll(DictionaryETY.class);
 		List<TransformETY> transforms = rulesTemplate.findAll(TransformETY.class);
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
 
 		assertAll(
 				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(engines), "engines should be inserted before testing the deletion")
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion")
 		);
 
 		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(SchemaETY.class));
@@ -520,7 +504,6 @@ class DataRetentionSchedulerUnitTest {
 		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(TerminologyETY.class));
 		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(TransformETY.class));
 		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(DictionaryETY.class));
-		doThrow(MongoException.class).when(rulesTemplate).remove(any(Query.class), eq(EngineETY.class));
 
 		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
 
@@ -529,8 +512,7 @@ class DataRetentionSchedulerUnitTest {
 				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be still full because database failed"),
 				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be still full because database failed"),
 				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be still full because database failed"),
-				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be still full because database failed"),
-				() -> assertFalse(CollectionUtils.isEmpty(engines), "engines should be still full because database failed")
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be still full because database failed")
 		);
 	}
 
@@ -547,15 +529,13 @@ class DataRetentionSchedulerUnitTest {
 		List<TerminologyETY> terminologies = rulesTemplate.findAll(TerminologyETY.class);
 		List<DictionaryETY> dictionaries = rulesTemplate.findAll(DictionaryETY.class);
 		List<TransformETY> transforms = rulesTemplate.findAll(TransformETY.class);
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
 
 		assertAll(
 				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(engines), "engines should be inserted before testing the deletion")
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion")
 		);
 
 		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
@@ -574,15 +554,13 @@ class DataRetentionSchedulerUnitTest {
 		List<TerminologyETY> terminologies = rulesTemplate.findAll(TerminologyETY.class);
 		List<DictionaryETY> dictionaries = rulesTemplate.findAll(DictionaryETY.class);
 		List<TransformETY> transforms = rulesTemplate.findAll(TransformETY.class);
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
 
 		assertAll(
 				() -> assertFalse(CollectionUtils.isEmpty(schemas), "schemas should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(schematron), "schematron should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(terminologies), "terminologies should be inserted before testing the deletion"),
 				() -> assertFalse(CollectionUtils.isEmpty(dictionaries), "dictionaries should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion"),
-				() -> assertFalse(CollectionUtils.isEmpty(engines), "engines should be inserted before testing the deletion")
+				() -> assertFalse(CollectionUtils.isEmpty(transforms), "transforms should be inserted before testing the deletion")
 		);
 
 		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
@@ -640,69 +618,5 @@ class DataRetentionSchedulerUnitTest {
 		}
 
 		valdocTemplate.insertAll(validatedDocuments);
-	}
-
-	@Test
-	@DisplayName("Do not remove any engine (none available)")
-	void emptyEngines() {
-		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
-		List<EngineETY> finalEngines = engines;
-		assertTrue(CollectionUtils.isEmpty(finalEngines), "engines should not be inserted before testing the empty deletion");
-		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
-		engines = rulesTemplate.findAll(EngineETY.class);
-		assertTrue(engines.isEmpty());
-	}
-
-	@Test
-	@DisplayName("Do not remove any engine (only one available)")
-	void noEngines() {
-		final int size = 1;
-		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
-		cfgItemsPreparation(size, getDaysAfterInsertion());
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
-		List<EngineETY> finalEngines = engines;
-		assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion");
-		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
-		engines = rulesTemplate.findAll(EngineETY.class);
-		assertEquals(size, engines.size());
-	}
-
-	@Test
-	@DisplayName("Do not remove any engine (none expired)")
-	void noEnginesExpired() {
-		final int size = 5;
-		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
-		cfgItemsPreparation(size, getDaysAfterInsertion() - 2);
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
-		List<EngineETY> finalEngines = engines;
-		assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion");
-		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
-		engines = rulesTemplate.findAll(EngineETY.class);
-		assertEquals(size, engines.size());
-	}
-
-	@Test
-	@DisplayName("Remove expired engines (not unexpired one)")
-	void multipleEngines() {
-		final int unexpired = 5;
-		final int expired = 10;
-		mockConfigurationItems(getDaysAfterInsertion(), 0, HttpStatus.OK, RetentionCase.CONFIG_ITEMS);
-
-		cfgItemsPreparation(unexpired, getDaysAfterInsertion() - 2);
-		cfgItemsPreparation(expired, getDaysAfterInsertion());
-
-		List<EngineETY> engines = rulesTemplate.findAll(EngineETY.class);
-
-		List<EngineETY> finalEngines = engines;
-
-		assertFalse(CollectionUtils.isEmpty(finalEngines), "engines should be inserted before testing the deletion");
-
-		assertDoesNotThrow(() -> cfgItemsRetentionScheduler.run());
-
-		engines = rulesTemplate.findAll(EngineETY.class);
-
-		assertEquals(unexpired, engines.size());
-
 	}
 }
