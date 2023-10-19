@@ -85,16 +85,6 @@ public class MongoDatabaseCFG {
 				.build();
 		return new SimpleMongoClientDatabaseFactory(MongoClients.create(mongoClientSettings), mongoData.getSchemaName());
 	}
-	
-	@Bean
-	@Qualifier("mongo-factory-rules")
-	public MongoDatabaseFactory mongoDatabaseFactoryRules() {
-		ConnectionString connectionString = new ConnectionString(mongoFse.getUri());
-		MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
-				.applyConnectionString(connectionString)
-				.build();
-		return new SimpleMongoClientDatabaseFactory(MongoClients.create(mongoClientSettings), mongoData.getSchemaName());
-	}
 
 	@Bean
 	@Qualifier("mongo-factory-rules")
