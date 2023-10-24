@@ -56,8 +56,6 @@ public class CfgItemsRetentionSRV implements ICfgItemsRetentionRepoSRV {
 			log.debug("DELETE TERMINOLOGY: " + terminologyDeletedRecords);
 			Integer dictionaryDeletedRecords = rulesRepo.deleteTerminology(dateToRemove);
 			log.debug("DELETE DICTIONARY: " + dictionaryDeletedRecords);
-			Integer enginesDeletedRecords = rulesRepo.deleteEngines(dateToRemove);
-			log.debug("DELETE ENGINES: " + enginesDeletedRecords);
 		} catch (Exception e) {
 			log.error("Error while perform delete cfg items", e);
 			throw new BusinessException("Error while perform delete cfg items", e);
