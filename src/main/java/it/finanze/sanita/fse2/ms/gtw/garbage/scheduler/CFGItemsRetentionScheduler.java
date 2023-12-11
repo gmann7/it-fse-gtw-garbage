@@ -11,9 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.scheduler;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
+import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -29,6 +27,9 @@ public class CFGItemsRetentionScheduler {
 	@Autowired
 	private ICfgItemsRetentionRepoSRV retentionSRV;
 
+	@Autowired
+	private IConfigSRV configSRV;
+
 	@Scheduled(cron = "${scheduler.rules-retention}")
 	@SchedulerLock(name = "invokeRulesRetentionScheduler", lockAtMostFor = "60m")
 	public void action() {
@@ -36,22 +37,13 @@ public class CFGItemsRetentionScheduler {
 	}
 
 	public void run() {
-
 		log.debug("Rules Retention Scheduler - Retention Scheduler starting");
 		try {
-
-			// Lettura Config remote.
-			Map<String, Integer> configs = retentionSRV.readConfigurations();
-
 			// Eliminazione Transactions in base alle configurazioni recuperate.
-			for (Entry<String, Integer> config : configs.entrySet()) {
-				retentionSRV.deleteCFGItems(config.getValue());
-			}
-
+			retentionSRV.deleteCFGItems(configSRV.getConfigItemsRetentionDay());
 		} catch (Exception e) {
 			log.warn("Rules Retention Scheduler - Error while executing data retention", e);
 		}
-
 		log.debug("Rules Retention Scheduler - Retention Scheduler finished");
 	}
 }

@@ -11,11 +11,10 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.client;
 
-import java.util.List;
-
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
+import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 
 public interface IConfigItemsClient {
-
-    List<ConfigItemETY> getConfigurationItems();
+    ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type);
+    String getProps(ConfigItemTypeEnum type, String props, String previous);
 }

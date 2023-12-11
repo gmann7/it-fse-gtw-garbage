@@ -34,21 +34,18 @@ public class DataRetentionScheduler {
     
     @Scheduled(cron = "${scheduler.data-retention}")
 	@SchedulerLock(name = "invokeDataRetentionScheduler" , lockAtMostFor = "60m")
-	public Map<String,Integer> action() {
-		return run(); 
+	public void action() {
+		run();
 	}
 
-    public Map<String,Integer> run() {
-    	Map<String,Integer> output = new HashMap<>();
+    public void run() {
     	log.debug("Data Retention Scheduler - Retention Scheduler starting");
     	try {
     		retentionSRV.deleteTransactionData();
     	} catch (Exception e) {
     		log.warn("Data Retention Scheduler - Error while executing data retention", e);
     	}
-
     	log.debug("Data Retention Scheduler - Retention Scheduler finished");
-    	return output;
     }
     
      

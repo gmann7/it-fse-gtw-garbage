@@ -11,28 +11,15 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.client.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.MicroservicesURLCFG;
-import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.ConfigClientRoutes;
+import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * Client that consent to call gtw-config to retrieve configuration items.
@@ -42,52 +29,36 @@ import lombok.extern.slf4j.Slf4j;
 public class ConfigItemsClient implements IConfigItemsClient {
     
     @Autowired
-    private RestTemplate restTemplate;
+    private RestTemplate client;
 	
 	@Autowired
-	private MicroservicesURLCFG msUrlCFG;
+	private ConfigClientRoutes routes;
 
 	@Override
-	public List<ConfigItemETY> getConfigurationItems() {
-		log.debug("Config Client - Retrieving configuration items");
-
-        List<ConfigItemETY> configurationItems = new ArrayList<>();
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.set("Content-Type", "application/json");
-
-		HttpEntity<?> entity = new HttpEntity<>(headers);
-        final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(msUrlCFG.getConfigHost() + "/v1/config-items")
-            .queryParam("type", "GARBAGE");
-
-		ResponseEntity<ConfigItemDTO> response = null;
-		try {
-			response = restTemplate.exchange(builder.toUriString(), HttpMethod.GET, entity, ConfigItemDTO.class);
-			final ConfigItemDTO body = response.getBody();
-			if (body != null) {
-				configurationItems = body.getConfigurationItems();
-				log.debug("gtw-config returned status {} and {} configuration items", response.getStatusCode(), body.getSize());
-			} else {
-				log.warn("gtw-config returned status {} and null body", response.getStatusCode());
-			}
-		} catch(HttpClientErrorException cex) {
-			log.error(String.format("Error encountered on gtw-config, received %s status code", cex.getStatusCode()), cex);
-			throw cex;
-		} catch(Exception ex) {
-			log.error("Generic error while calling gtw-config", ex);
-			throw new BusinessException("Generic error while calling gtw-config", ex);
-		}
-		return configurationItems;
+	public ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type) {
+		return client.getForObject(routes.getConfigItems(type), ConfigItemDTO.class);
 	}
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ConfigItemDTO {
+	@Override
+	public String getProps(ConfigItemTypeEnum type, String props, String previous) {
+		String out = previous;
+		String endpoint = routes.getConfigItem(type, props);
+		if (isReachable()) out = client.getForObject(endpoint, String.class);
+		if(out == null || !out.equals(previous)) {
+			log.info("[GTW-CFG] Property {} is set as {} (previously: {})", props, out, previous);
+		}
+		return out;
+	}
 
-        private List<ConfigItemETY> configurationItems;
+	private boolean isReachable() {
+		boolean out;
+		try {
+			client.getForEntity(routes.status(), String.class);
+			out = true;
+		} catch (ResourceAccessException ex) {
+			out = false;
+		}
+		return out;
+	}
 
-        private Integer size;
-    }
 }

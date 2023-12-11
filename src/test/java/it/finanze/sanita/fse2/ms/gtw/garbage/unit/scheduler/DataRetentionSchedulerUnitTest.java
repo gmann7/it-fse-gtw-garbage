@@ -12,10 +12,9 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.unit.scheduler;
 
 import com.mongodb.MongoException;
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.impl.ConfigItemsClient.ConfigItemDTO;
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.response.ConfigItemETY;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.config.RetentionCFG;
+import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.*;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.CFGItemsRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
@@ -56,6 +55,8 @@ import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.*;
 
+import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_ITEMS_RETENTION_DAY;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_VALD_DOCS_RETENTION_DAY;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants.ConfigItems.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -200,25 +201,25 @@ class DataRetentionSchedulerUnitTest {
 	}
 
 	private void mockConfigurationItems(final Integer success, final Integer error, final HttpStatus status, RetentionCase retentionCase) {
-		List<ConfigItemETY> items = new ArrayList<>();
+		List<ConfigItemDTO.ConfigDataItemDTO> items = new ArrayList<>();
 		Map<String, String> configItems = new HashMap<>();
 		switch (retentionCase) {
 			case CONFIG_ITEMS:
-				configItems.put(CFG_ITEMS_RETENTION_DAY, String.valueOf(success));
+				configItems.put(PROPS_NAME_ITEMS_RETENTION_DAY, String.valueOf(success));
 				break;
 			case VAL_DOCS:
-				configItems.put(VALIDATED_DOCUMENT_RETENTION_DAY, String.valueOf(success));
+				configItems.put(PROPS_NAME_VALD_DOCS_RETENTION_DAY, String.valueOf(success));
 				break;
 			case SUCCESS:
 				configItems.put(SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
 				break;
 			default:
-				configItems.put(CFG_ITEMS_RETENTION_DAY, String.valueOf(success));
-				configItems.put(VALIDATED_DOCUMENT_RETENTION_DAY, String.valueOf(success));
+				configItems.put(PROPS_NAME_ITEMS_RETENTION_DAY, String.valueOf(success));
+				configItems.put(PROPS_NAME_VALD_DOCS_RETENTION_DAY, String.valueOf(success));
 				configItems.put(SUCCESS_TRANSACTION_RETENTION_HOURS, String.valueOf(success));
 				break;
 		}
-		items.add(new ConfigItemETY("GARBAGE", configItems));
+		items.add(new ConfigItemDTO.ConfigDataItemDTO("GARBAGE", configItems));
 
 		ConfigItemDTO configItemDTO = new ConfigItemDTO();
 		configItemDTO.setConfigurationItems(items);

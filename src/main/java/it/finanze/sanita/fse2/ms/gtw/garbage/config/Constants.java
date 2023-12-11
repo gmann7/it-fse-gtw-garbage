@@ -47,10 +47,6 @@ public final class Constants {
 
 		public static final String SUCCESS_TRANSACTION_RETENTION_HOURS = "SUCCESS";
 
-		public static final String VALIDATED_DOCUMENT_RETENTION_DAY = "VALIDATED_DOCUMENT_RETENTION_DAY";
-		
-		public static final String CFG_ITEMS_RETENTION_DAY = "CFG_ITEMS_RETENTION_DAY";
-
 		private ConfigItems() {
 		}
 	}

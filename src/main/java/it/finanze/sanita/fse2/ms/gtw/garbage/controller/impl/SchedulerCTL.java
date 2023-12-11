@@ -11,18 +11,15 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.controller.impl;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RestController;
-
 import it.finanze.sanita.fse2.ms.gtw.garbage.controller.ISchedulerCTL;
-import it.finanze.sanita.fse2.ms.gtw.garbage.dto.DeletedSchedulerResDTO;
+import it.finanze.sanita.fse2.ms.gtw.garbage.dto.LogTraceInfoDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.CFGItemsRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.ValidatedDocumentRetentionScheduler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 @RestController
@@ -38,19 +35,21 @@ public class SchedulerCTL extends AbstractCTL implements ISchedulerCTL {
 	private CFGItemsRetentionScheduler cfgItemsScheduler;
 	
 	@Override
-	public DeletedSchedulerResDTO runSchedulerDataRetention(HttpServletRequest request) {
-		Map<String,Integer> out = dataRetentionScheduler.action();
-		return new DeletedSchedulerResDTO(getLogTraceInfo(), out);
+	public LogTraceInfoDTO runSchedulerDataRetention(HttpServletRequest request) {
+		dataRetentionScheduler.action();
+		return getLogTraceInfo();
 	}
 	
 	@Override
-	public void runSchedulerValidatedDocuments(HttpServletRequest request) {
+	public LogTraceInfoDTO runSchedulerValidatedDocuments(HttpServletRequest request) {
 		validatedDocsScheduler.action();
+		return getLogTraceInfo();
 	}
 	
 	@Override
-	public void runSchedulerCfgItems(HttpServletRequest request) {
+	public LogTraceInfoDTO runSchedulerCfgItems(HttpServletRequest request) {
 		cfgItemsScheduler.action();
+		return getLogTraceInfo();
 	}
 
 	 

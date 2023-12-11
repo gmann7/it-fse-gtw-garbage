@@ -11,16 +11,13 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.scheduler;
 
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
+import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IValidatedDocumentRetentionSRV;
 import lombok.extern.slf4j.Slf4j;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
@@ -29,6 +26,9 @@ public class ValidatedDocumentRetentionScheduler {
 
 	@Autowired
 	private IValidatedDocumentRetentionSRV retentionSRV;
+
+	@Autowired
+	private IConfigSRV configSRV;
 
 	@Scheduled(cron = "${scheduler.valdoc-retention}")
 	@SchedulerLock(name = "invokeFseRetentionScheduler", lockAtMostFor = "60m")
@@ -39,18 +39,11 @@ public class ValidatedDocumentRetentionScheduler {
 	public void run() {
 		log.debug("ValidatedDocument Retention Scheduler - Retention Scheduler starting");
 		try {
-			// Lettura Config remote.
-			Map<String, Integer> configs = retentionSRV.readConfigurations();
-
 			// Eliminazione Validated Document in base alle configurazioni recuperate.
-			for (Entry<String, Integer> config : configs.entrySet()) {
-				retentionSRV.deleteValidatedDocuments(config.getValue());
-			}
-
+			retentionSRV.deleteValidatedDocuments(configSRV.getValidatedDocRetentionDay());
 		} catch (Exception e) {
 			log.error("ValidatedDocument Retention Scheduler - Error while executing data retention", e);
 		}
-
 		log.debug("ValidatedDocument Retention Scheduler - Retention Scheduler finished");
 	}
 
