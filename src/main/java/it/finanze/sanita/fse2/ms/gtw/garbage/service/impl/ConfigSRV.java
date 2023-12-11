@@ -17,8 +17,9 @@ import java.util.Map;
 
 import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_ITEMS_RETENTION_DAY;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_VALD_DOCS_RETENTION_DAY;
-import static it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO.*;
-import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.*;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO.ConfigDataItemDTO;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.GARBAGE;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.values;
 
 @Slf4j
 @Service
@@ -48,6 +49,7 @@ public class ConfigSRV implements IConfigSRV {
                 });
             }
         }
+        integrity();
     }
 
 
@@ -86,4 +88,16 @@ public class ConfigSRV implements IConfigSRV {
         String prop = client.getProps(type, name, previous);
         props.put(name, Pair.of(new Date().getTime(), prop));
     }
+
+    private void integrity() {
+        String err = "Missing props {} from garbage";
+        String[] out = new String[]{
+            PROPS_NAME_VALD_DOCS_RETENTION_DAY,
+            PROPS_NAME_ITEMS_RETENTION_DAY
+        };
+        for (String prop : out) {
+            if(!props.containsKey(prop)) throw new IllegalStateException(err.replace("{}", prop));
+        }
+    }
+
 }
