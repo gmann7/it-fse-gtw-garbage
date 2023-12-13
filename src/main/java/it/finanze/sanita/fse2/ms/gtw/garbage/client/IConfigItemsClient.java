@@ -16,5 +16,5 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 
 public interface IConfigItemsClient {
     ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type);
-    String getProps(ConfigItemTypeEnum type, String props, String previous);
+    String getProps(String props, String previous, ConfigItemTypeEnum ms);
 }
