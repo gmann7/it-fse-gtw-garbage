@@ -18,7 +18,8 @@ import java.util.Map;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_ITEMS_RETENTION_DAY;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_VALD_DOCS_RETENTION_DAY;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO.ConfigDataItemDTO;
-import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.*;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.GARBAGE;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.priority;
 
 @Slf4j
 @Service
@@ -46,8 +47,8 @@ public class ConfigSRV implements IConfigSRV {
                     log.info("[GTW-CFG] Property {} is set as {}", key, value);
                     props.put(key, Pair.of(new Date().getTime(), value));
                 });
-                if(opt.getItems().isEmpty()) log.info("[GTW-CFG] No props were found");
             }
+            if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
         }
         integrity();
     }
