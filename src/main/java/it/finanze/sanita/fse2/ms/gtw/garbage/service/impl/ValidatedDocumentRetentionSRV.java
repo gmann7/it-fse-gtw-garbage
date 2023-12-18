@@ -12,7 +12,7 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.service.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.exceptions.BusinessException;
-import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IDataRepo;
+import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IIniEdsInvocationRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IValidatedDocumentRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IValidatedDocumentRetentionSRV;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;

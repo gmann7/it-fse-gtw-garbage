@@ -33,11 +33,6 @@ import java.util.stream.Collectors;
 @Repository
 public class ValidatedDocumentRepo implements IValidatedDocumentRepo {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -7642250403832399384L;
-
 	@Autowired
 	@Qualifier("mongo-template-valdoc")
 	private transient MongoTemplate mongoTemplate;

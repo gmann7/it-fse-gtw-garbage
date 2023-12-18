@@ -11,10 +11,8 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-
+import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
+import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,10 +21,11 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
-import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = { DateUtility.class })
 @ExtendWith(SpringExtension.class)
@@ -36,25 +35,13 @@ class DateUtilityTest {
 
 	@Test
 	@DisplayName("date verified")
-	void dateOlderThan() throws Exception {
+	void dateOlderThan() {
+		assertTrue(DateUtility.dateOlderThan(getDateMinusXDays(1), -4));
+		assertFalse(DateUtility.dateOlderThan(getDateMinusXDays(4), -1));
+	}
 
-		int x = 4;
-		final Calendar calTrue = Calendar.getInstance();
-		calTrue.setTime(new Date());
-		calTrue.add(Calendar.DAY_OF_MONTH, -5);
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-		String trueString = sdf.format(calTrue.getTime());
-		
-		
-		int y = 1;
-		final Calendar calFalse = Calendar.getInstance();
-		calFalse.setTime(new Date());
-		calFalse.add(Calendar.DAY_OF_MONTH, -1);
-		String falseString = sdf.format(calFalse.getTime());
-
-		assertTrue(DateUtility.dateOlderThan(trueString, x));
-		assertFalse(DateUtility.dateOlderThan(falseString, y));
-
+	private static String getDateMinusXDays(int days) {
+        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ISO_DATE);
 	}
 
 }

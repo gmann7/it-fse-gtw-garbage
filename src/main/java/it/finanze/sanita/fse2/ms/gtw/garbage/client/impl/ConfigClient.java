@@ -28,7 +28,7 @@ import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.GEN
  */
 @Slf4j
 @Component
-public class ConfigItemsClient implements IConfigItemsClient {
+public class ConfigClient implements IConfigClient {
     
     @Autowired
     private RestTemplate client;
