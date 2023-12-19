@@ -58,7 +58,7 @@ public class ConfigSRV implements IConfigSRV {
     public Integer getValidatedDocRetentionDay() {
         long lastUpdate = props.get(PROPS_NAME_VALD_DOCS_RETENTION_DAY).getKey();
         if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-            synchronized(PROPS_NAME_VALD_DOCS_RETENTION_DAY) {
+            synchronized(Locks.VALD_DOCS_RETENTION_DAY) {
                 if (new Date().getTime() - lastUpdate >= DELTA_MS) {
                     refresh(PROPS_NAME_VALD_DOCS_RETENTION_DAY);
                 }
@@ -73,7 +73,7 @@ public class ConfigSRV implements IConfigSRV {
     public Integer getConfigItemsRetentionDay() {
         long lastUpdate = props.get(PROPS_NAME_ITEMS_RETENTION_DAY).getKey();
         if (new Date().getTime() - lastUpdate >= DELTA_MS) {
-            synchronized(PROPS_NAME_ITEMS_RETENTION_DAY) {
+            synchronized(Locks.ITEMS_RETENTION_DAY) {
                 if (new Date().getTime() - lastUpdate >= DELTA_MS) {
                     refresh(PROPS_NAME_ITEMS_RETENTION_DAY);
                 }
@@ -99,6 +99,11 @@ public class ConfigSRV implements IConfigSRV {
         for (String prop : out) {
             if(!props.containsKey(prop)) throw new IllegalStateException(err.replace("{}", prop));
         }
+    }
+
+    private static final class Locks {
+        public static final Object VALD_DOCS_RETENTION_DAY = new Object();
+        public static final Object ITEMS_RETENTION_DAY = new Object();
     }
 
 }
