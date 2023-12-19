@@ -4,6 +4,7 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
+import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ public class ConfigSRV implements IConfigSRV {
     @Autowired
     private IConfigClient client;
 
+    @Autowired
+    private ProfileUtility profiles;
+
     private final Map<String, Pair<Long, String>> props;
 
     public ConfigSRV() {
@@ -38,19 +42,11 @@ public class ConfigSRV implements IConfigSRV {
 
     @PostConstruct
     public void postConstruct() {
-        for(ConfigItemTypeEnum en : priority()) {
-            log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
-            ConfigItemDTO items = client.getConfigurationItems(en);
-            List<ConfigDataItemDTO> opts = items.getConfigurationItems();
-            for(ConfigDataItemDTO opt : opts) {
-                opt.getItems().forEach((key, value) -> {
-                    log.info("[GTW-CFG] Property {} is set as {}", key, value);
-                    props.put(key, Pair.of(new Date().getTime(), value));
-                });
-            }
-            if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
-        }
-        integrity();
+       if(!profiles.isTestProfile()) {
+           init();
+       } else {
+           log.info("Skipping gtw-config initialization due to test profile");
+       }
     }
 
 
@@ -99,6 +95,22 @@ public class ConfigSRV implements IConfigSRV {
         for (String prop : out) {
             if(!props.containsKey(prop)) throw new IllegalStateException(err.replace("{}", prop));
         }
+    }
+
+    private void init() {
+        for(ConfigItemTypeEnum en : priority()) {
+            log.info("[GTW-CFG] Retrieving {} properties ...", en.name());
+            ConfigItemDTO items = client.getConfigurationItems(en);
+            List<ConfigDataItemDTO> opts = items.getConfigurationItems();
+            for(ConfigDataItemDTO opt : opts) {
+                opt.getItems().forEach((key, value) -> {
+                    log.info("[GTW-CFG] Property {} is set as {}", key, value);
+                    props.put(key, Pair.of(new Date().getTime(), value));
+                });
+            }
+            if(opts.isEmpty()) log.info("[GTW-CFG] No props were found");
+        }
+        integrity();
     }
 
     private static final class Locks {
