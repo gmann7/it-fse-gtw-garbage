@@ -19,6 +19,7 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.*;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.CFGItemsRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.DataRetentionScheduler;
 import it.finanze.sanita.fse2.ms.gtw.garbage.scheduler.ValidatedDocumentRetentionScheduler;
+import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -62,8 +63,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.*;
 
 /**
  *
@@ -111,6 +111,9 @@ class DataRetentionSchedulerUnitTest {
 
 	@SpyBean
 	RestTemplate restTemplate;
+
+	@MockBean
+	IConfigSRV config;
 
 	@BeforeEach
 	void setup() {
@@ -463,6 +466,8 @@ class DataRetentionSchedulerUnitTest {
 				() -> assertFalse(CollectionUtils.isEmpty(finalTransforms), "transforms should be inserted before testing the deletion")
 		);
 
+		when(config.getConfigItemsRetentionDay()).thenReturn(5);
+
 		cfgItemsRetentionScheduler.run();
 
 		schemas = rulesTemplate.findAll(SchemaETY.class);
@@ -579,6 +584,7 @@ class DataRetentionSchedulerUnitTest {
 		List<ValidatedDocumentsETY> finalValDocs = validatedDocuments;
 
 		assertFalse(CollectionUtils.isEmpty(finalValDocs), "valdocs should be inserted before testing the deletion");
+		when(config.getValidatedDocRetentionDay()).thenReturn(5);
 		validatedDocumentRetentionScheduler.run();
 		validatedDocuments = valdocTemplate.findAll(ValidatedDocumentsETY.class);
 		assertTrue(CollectionUtils.isEmpty(validatedDocuments));
