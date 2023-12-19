@@ -31,7 +31,7 @@ public class ValidatedDocumentRetentionSRV implements IValidatedDocumentRetentio
 	private IValidatedDocumentRepo valDocRepo;
 
 	@Autowired
-	private IDataRepo dataRepo;
+	private IIniEdsInvocationRepo dataRepo;
 
 	@Override
 	public void deleteValidatedDocuments(final int day) {

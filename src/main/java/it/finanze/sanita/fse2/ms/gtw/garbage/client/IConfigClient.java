@@ -14,7 +14,7 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.client;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 
-public interface IConfigItemsClient {
+public interface IConfigClient {
     ConfigItemDTO getConfigurationItems(ConfigItemTypeEnum type);
     String getProps(String props, String previous, ConfigItemTypeEnum ms);
 }

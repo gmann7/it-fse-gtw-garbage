@@ -1,6 +1,6 @@
 package it.finanze.sanita.fse2.ms.gtw.garbage.service.impl;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
@@ -28,7 +28,7 @@ public class ConfigSRV implements IConfigSRV {
     private static final long DELTA_MS = 300_000L;
 
     @Autowired
-    private IConfigItemsClient client;
+    private IConfigClient client;
 
     private final Map<String, Pair<Long, String>> props;
 

@@ -11,7 +11,7 @@
  */
 package it.finanze.sanita.fse2.ms.gtw.garbage.client.impl;
 
-import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigItemsClient;
+import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.ConfigClientRoutes;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
