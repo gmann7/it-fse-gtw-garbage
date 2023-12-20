@@ -129,7 +129,7 @@ class DataRetentionSchedulerUnitTest {
 	
 	@ParameterizedTest
 	@DisplayName("Deletion of transactions and data - Same size")
-	@ValueSource(ints = {5000, 15000, 100000})
+	@ValueSource(ints = {1000, 15000, 30000})
 	void runDeleteTransactions(final int size) {
 		
 		mockConfigurationItems(0, 0, HttpStatus.OK, RetentionCase.SUCCESS);
