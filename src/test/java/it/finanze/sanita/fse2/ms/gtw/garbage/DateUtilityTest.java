@@ -15,21 +15,16 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.config.Constants;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.DateUtility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = { DateUtility.class })
-@ExtendWith(SpringExtension.class)
-@ComponentScan(basePackages = { "it.sanita.garbage" })
 @ActiveProfiles(Constants.Profile.TEST)
 class DateUtilityTest {
 
@@ -38,6 +33,15 @@ class DateUtilityTest {
 	void dateOlderThan() {
 		assertTrue(DateUtility.dateOlderThan(getDateMinusXDays(1), -4));
 		assertFalse(DateUtility.dateOlderThan(getDateMinusXDays(4), -1));
+	}
+
+	@Test
+	@DisplayName("Business exception")
+	void testAddDayException(){
+		assertThrows(
+			NumberFormatException.class,
+			() -> DateUtility.addDay(new Date(), Integer.valueOf(""))
+		);
 	}
 
 	private static String getDateMinusXDays(int days) {
