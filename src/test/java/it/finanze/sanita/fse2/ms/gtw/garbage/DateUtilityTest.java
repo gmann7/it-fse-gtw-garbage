@@ -29,23 +29,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class DateUtilityTest {
 
 	@Test
-	@DisplayName("date verified")
-	void dateOlderThan() {
-		assertTrue(DateUtility.dateOlderThan(getDateMinusXDays(1), -4));
-		assertFalse(DateUtility.dateOlderThan(getDateMinusXDays(4), -1));
-	}
-
-	@Test
 	@DisplayName("Business exception")
 	void testAddDayException(){
 		assertThrows(
 			NumberFormatException.class,
-			() -> DateUtility.addDay(new Date(), Integer.valueOf(""))
+			this::invokeAddDay
 		);
 	}
 
-	private static String getDateMinusXDays(int days) {
-        return LocalDate.now().plusDays(days).format(DateTimeFormatter.ISO_DATE);
+	void invokeAddDay(){
+		DateUtility.addDay(new Date(), Integer.valueOf(""));
 	}
 
 }

@@ -19,13 +19,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles(Constants.Profile.TEST)
 @AutoConfigureMockMvc
-public class LivenessCheckCTLTest {
+class LivenessCheckCTLTest {
 
     @Autowired
     MockMvc mockMvc;
 
     @Test
-    public void testHealthCheck() throws Exception {
+    void testHealthCheck() throws Exception {
         mockMvc.perform(
             get("/status")
             .contentType(MediaType.APPLICATION_JSON))

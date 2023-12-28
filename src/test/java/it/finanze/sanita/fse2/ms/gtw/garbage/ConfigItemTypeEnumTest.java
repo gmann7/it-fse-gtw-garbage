@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SpringBootTest
 @ActiveProfiles(Constants.Profile.TEST)
 @Slf4j
-public class ConfigItemTypeEnumTest {
+class ConfigItemTypeEnumTest {
 
     @Test
-    public void testPriority() {
+    void testPriority() {
         // Call the priority method
         List<ConfigItemTypeEnum> items = ConfigItemTypeEnum.priority();
 

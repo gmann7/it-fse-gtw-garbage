@@ -26,8 +26,6 @@ import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.pri
 @Service
 public class ConfigSRV implements IConfigSRV {
 
-    private static final long DELTA_MS = 300_000L;
-
     @Autowired
     private IConfigClient client;
 
@@ -53,9 +51,9 @@ public class ConfigSRV implements IConfigSRV {
     @Override
     public Integer getValidatedDocRetentionDay() {
         long lastUpdate = props.get(PROPS_NAME_VALD_DOCS_RETENTION_DAY).getKey();
-        if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+        if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
             synchronized(Locks.VALD_DOCS_RETENTION_DAY) {
-                if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+                if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
                     refresh(PROPS_NAME_VALD_DOCS_RETENTION_DAY);
                 }
             }
@@ -68,9 +66,9 @@ public class ConfigSRV implements IConfigSRV {
     @Override
     public Integer getConfigItemsRetentionDay() {
         long lastUpdate = props.get(PROPS_NAME_ITEMS_RETENTION_DAY).getKey();
-        if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+        if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
             synchronized(Locks.ITEMS_RETENTION_DAY) {
-                if (new Date().getTime() - lastUpdate >= DELTA_MS) {
+                if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
                     refresh(PROPS_NAME_ITEMS_RETENTION_DAY);
                 }
             }
@@ -95,6 +93,11 @@ public class ConfigSRV implements IConfigSRV {
         for (String prop : out) {
             if(!props.containsKey(prop)) throw new IllegalStateException(err.replace("{}", prop));
         }
+    }
+
+    @Override
+    public long getRefreshRate() {
+        return 300_000L;
     }
 
     private void init() {
