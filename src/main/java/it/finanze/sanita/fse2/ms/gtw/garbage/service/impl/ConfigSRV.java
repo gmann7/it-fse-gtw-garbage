@@ -16,8 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_ITEMS_RETENTION_DAY;
-import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.PROPS_NAME_VALD_DOCS_RETENTION_DAY;
+import static it.finanze.sanita.fse2.ms.gtw.garbage.client.routes.base.ClientRoutes.Config.*;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO.ConfigDataItemDTO;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.GARBAGE;
 import static it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum.priority;
@@ -60,6 +59,21 @@ public class ConfigSRV implements IConfigSRV {
         }
         return Integer.parseInt(
             props.get(PROPS_NAME_VALD_DOCS_RETENTION_DAY).getValue()
+        );
+    }
+
+    @Override
+    public Boolean isRemoveEds() {
+        long lastUpdate = props.get(PROPS_NAME_REMOVE_EDS_ENABLE).getKey();
+        if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
+            synchronized(Locks.REMOVE_EDS_ENABLE) {
+                if (new Date().getTime() - lastUpdate >= getRefreshRate()) {
+                    refresh(PROPS_NAME_REMOVE_EDS_ENABLE);
+                }
+            }
+        }
+        return Boolean.parseBoolean(
+                props.get(PROPS_NAME_REMOVE_EDS_ENABLE).getValue()
         );
     }
 
@@ -119,6 +133,7 @@ public class ConfigSRV implements IConfigSRV {
     private static final class Locks {
         public static final Object VALD_DOCS_RETENTION_DAY = new Object();
         public static final Object ITEMS_RETENTION_DAY = new Object();
+        public static final Object REMOVE_EDS_ENABLE = new Object();
     }
 
 }

@@ -34,6 +34,7 @@ public final class ClientRoutes {
         // VALUES
         public static final String PROPS_NAME_ITEMS_RETENTION_DAY = "cfg-items-retention-day";
         public static final String PROPS_NAME_VALD_DOCS_RETENTION_DAY = "validated-document-retention-day";
+        public static final String PROPS_NAME_REMOVE_EDS_ENABLE = "remove-eds-enabled";
     }
 
 }

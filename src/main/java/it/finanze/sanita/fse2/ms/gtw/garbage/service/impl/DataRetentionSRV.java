@@ -14,6 +14,7 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,11 +40,15 @@ public class DataRetentionSRV implements IDataRetentionSRV {
 	@Autowired
 	private ITransactionsRepo transactionsRepo;
 
+	@Autowired
+	private IConfigSRV configSRV;
+
 	@Override
 	public void deleteTransactionData() {
 
 		try {
-			List<TransactionEventsETY> transactionDataDeleted = transactionsRepo.findExpiringTransactionData(Constants.FINAL_STATUS);
+			String finalStatus = configSRV.isRemoveEds() ? Constants.SEND_TO_INI : Constants.EDS_WORKFLOW;
+			List<TransactionEventsETY> transactionDataDeleted = transactionsRepo.findExpiringTransactionData(finalStatus);
 			
 			if(transactionDataDeleted!=null) {
 				List<String> wiiToDelete = transactionDataDeleted.stream().map(TransactionEventsETY::getWorkflowInstanceId).collect(Collectors.toList());

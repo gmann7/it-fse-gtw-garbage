@@ -327,7 +327,7 @@ class DataRetentionSchedulerUnitTest {
 			data.add(item);
 
 			transaction.setWorkflowInstanceId(id);
-			transaction.setEventType(Constants.FINAL_STATUS);
+			transaction.setEventType(Constants.SEND_TO_INI);
 			transaction.setEventDate(oldDate);
 			transaction.setExpiringDate(oldDate);
 

@@ -16,7 +16,8 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.config;
  */
 public final class Constants {
 	
-	public static final String FINAL_STATUS = "SEND_TO_INI";
+	public static final String SEND_TO_INI = "SEND_TO_INI";
+	public static final String EDS_WORKFLOW = "EDS_WORKFLOW";
 
 	
 	public static final class Collections {
