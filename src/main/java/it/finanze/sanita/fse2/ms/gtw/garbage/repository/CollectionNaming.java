@@ -88,6 +88,14 @@ public class CollectionNaming {
 		}
 		return Constants.Collections.DICTIONARY;
     }
+
+	@Bean("auditIni")
+	public String getAuditIniCollection() {
+		if (profileUtility.isTestProfile()) {
+			return Constants.Profile.TEST_PREFIX + Constants.Collections.AUDIT_INI;
+		}
+		return Constants.Collections.AUDIT_INI;
+	}
 	
 	
 }

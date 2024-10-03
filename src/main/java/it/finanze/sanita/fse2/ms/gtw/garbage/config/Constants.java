@@ -25,6 +25,7 @@ public final class Constants {
 			public static final String TRANSACTION_DATA = "transaction_data";
 
 			public static final String INI_EDS_INVOCATION = "ini_eds_invocation";
+			public static final String AUDIT_INI = "audit_ini";
 
 			public static final String VALIDATED_DOCUMENTS = "validated_documents";
 
