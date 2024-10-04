@@ -27,7 +27,7 @@ public class AuditIniRetentionScheduler {
     public void run() {
         log.debug("Audit-ini Retention Scheduler - Retention Scheduler starting");
         try {
-            log.debug("Checking for expired ini audit...");
+            log.info("Checking for expired ini audit...");
             auditIniRetentionSRV.deleteAudit(new Date());
         } catch (Exception e) {
             log.warn("Audit-ini Scheduler - Error while executing audit-ini data retention", e);

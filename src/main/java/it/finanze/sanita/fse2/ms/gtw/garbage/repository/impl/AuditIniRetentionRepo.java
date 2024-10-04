@@ -4,6 +4,7 @@ import it.finanze.sanita.fse2.ms.gtw.garbage.repository.IAuditIniRetentionRepo;
 import it.finanze.sanita.fse2.ms.gtw.garbage.repository.entity.AuditIniETY;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -21,9 +22,12 @@ public class AuditIniRetentionRepo implements IAuditIniRetentionRepo {
     @Autowired
     private MongoTemplate mongoTemplate;
 
+    @Value("${retention.transactions-query.limit}")
+    private Integer retentionQueryLimit;
+
     @Override
     public void deleteExpiredAudit(Date date) {
-        Pageable pageable = PageRequest.of(0, 100);
+        Pageable pageable = PageRequest.of(0, retentionQueryLimit);
         Query query = new Query(Criteria.where(AuditIniETY.EXPIRING_DATE).lte(date)).with(pageable);
 
         List<AuditIniETY> audits;
@@ -42,11 +46,11 @@ public class AuditIniRetentionRepo implements IAuditIniRetentionRepo {
             pageable = pageable.next();
             query.with(pageable);
 
-            log.debug("{} records has been deleted in the current batch", deletedInBatch);
+            log.info("{} records has been deleted in the current batch", deletedInBatch);
 
         } while (!audits.isEmpty());
 
-        log.debug("Total records deleted: {}", totalDeleted);
+        log.info("Total records deleted: {}", totalDeleted);
     }
 
 
