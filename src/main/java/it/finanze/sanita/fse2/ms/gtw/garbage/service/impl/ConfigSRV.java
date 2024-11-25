@@ -2,6 +2,7 @@ package it.finanze.sanita.fse2.ms.gtw.garbage.service.impl;
 
 import it.finanze.sanita.fse2.ms.gtw.garbage.client.IConfigClient;
 import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO;
+import it.finanze.sanita.fse2.ms.gtw.garbage.dto.ConfigItemDTO.ConfigDataItemDTO;
 import it.finanze.sanita.fse2.ms.gtw.garbage.enums.ConfigItemTypeEnum;
 import it.finanze.sanita.fse2.ms.gtw.garbage.service.IConfigSRV;
 import it.finanze.sanita.fse2.ms.gtw.garbage.utility.ProfileUtility;
@@ -32,7 +33,7 @@ public class ConfigSRV implements IConfigSRV {
     @Autowired
     private ProfileUtility profiles;
 
-    @Value("${ms.config.refresh-rate}")
+    @Value("${ms.config.refresh-rate:900000}")
 	private Long refreshRate;
 
     private final Map<String, Pair<Long, String>> props;
